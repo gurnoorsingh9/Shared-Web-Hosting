@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Signup - G Host</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary: #F38020;
+  --primary-dark: #E85D04;
+  --primary-light: rgba(243, 128, 32, 0.15);
+  --success: #36B37E;
+  --error: #DE350B;
+  --bg-primary: #080B10;
+  --bg-secondary: #0D1117;
+  --bg-tertiary: #161B22;
+  --bg-card: #0D1117;
+  --border: #2D333B;
+  --border-light: #21262D;
+  --text-primary: #F0F6FC;
+  --text-secondary: #8B949E;
+  --text-muted: #656D76;
+  --gradient-primary: linear-gradient(135deg, #F38020 0%, #E85D04 100%);
+}
+
+body.light-mode {
+  --bg-primary: #F8F9FB;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F0F2F5;
+  --bg-card: #FFFFFF;
+  --border: #E2E8F0;
+  --border-light: #EDF0F4;
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --text-muted: #A0AEC0;
+  --primary-light: rgba(243, 128, 32, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bgCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.top-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(8, 11, 16, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+}
+
+body.light-mode .top-nav { background: rgba(255,255,255,0.8); }
+
+.nav-brand { display: flex; align-items: center; text-decoration: none; }
+
+.brand-logo {
+  height: 28px; width: auto; max-width: 120px;
+  object-fit: contain;
+}
+
+body.light-mode .brand-logo { filter: none; }
+body:not(.light-mode) .brand-logo { filter: brightness(1.2) contrast(1.1); }
+
+.nav-icon-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 13px;
+}
+
+body.light-mode .nav-icon-btn { background: rgba(0,0,0,0.04); }
+.nav-icon-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+
+/* ═══════ Main Layout ═══════ */
+.main-wrapper {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════ Left Panel ═══════ */
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 72px 40px 32px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(243,128,32,0.04) 0%, transparent 50%, rgba(243,128,32,0.02) 100%);
+}
+
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: -20%; left: -15%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(243,128,32,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+.left-content {
+  position: relative;
+  z-index: 2;
+  max-width: 440px;
+  animation: fadeInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.left-title {
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+  color: #FFFFFF;
+}
+
+body.light-mode .left-title { color: var(--text-primary); }
+
+.left-title .highlight {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.left-subtitle {
+  font-size: clamp(11px, 1vw, 14px);
+  color: #C9D1D9;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+body.light-mode .left-subtitle { color: var(--text-secondary); }
+
+.left-divider {
+  height: 2px;
+  width: 40px;
+  border-radius: 4px;
+  background: var(--gradient-primary);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.left-divider::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmerLine 2.5s ease-in-out infinite;
+}
+
+@keyframes shimmerLine {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.feature-card {
+  background: rgba(243, 128, 32, 0.04);
+  border: 1px solid rgba(243, 128, 32, 0.12);
+  border-radius: 10px;
+  padding: 10px;
+  transition: all 0.3s ease;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+body.light-mode .feature-card { background: rgba(243, 128, 32, 0.03); border-color: rgba(243, 128, 32, 0.15); }
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.feature-card:hover::before { transform: scaleX(1); }
+.feature-card:hover { border-color: rgba(243,128,32,0.5); background: rgba(243, 128, 32, 0.1); transform: translateY(-2px); }
+
+.feature-icon {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  margin-bottom: 5px;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon { background: var(--primary); color: white; }
+
+.feature-name { font-weight: 700; font-size: 11px; margin-bottom: 2px; color: #E6EDF3; }
+body.light-mode .feature-name { color: var(--text-primary); }
+.feature-desc { font-size: 10px; color: #8B949E; line-height: 1.3; }
+body.light-mode .feature-desc { color: var(--text-secondary); }
+
+/* ═══════ Center Divider ═══════ */
+.center-divider {
+  width: 1px;
+  background: linear-gradient(to bottom, transparent 5%, rgba(243,128,32,0.15) 30%, rgba(243,128,32,0.15) 70%, transparent 95%);
+  animation: linePulse 4s ease-in-out infinite;
+}
+
+@keyframes linePulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ═══════ Right Panel ═══════ */
+.right-panel {
+  width: 400px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 72px 28px 28px;
+  overflow-y: auto;
+}
+
+.signup-container {
+  width: 100%;
+  max-width: 340px;
+  animation: fadeInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.page-header { text-align: center; margin-bottom: 16px; }
+
+.page-logo {
+  display: block;
+  margin: 0 auto 10px;
+  height: 32px;
+  width: auto; max-width: 120px;
+  object-fit: contain;
+  animation: logoReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+body:not(.light-mode) .page-logo { filter: brightness(1.3) contrast(1.1); }
+body.light-mode .page-logo { filter: none; }
+
+@keyframes logoReveal {
+  from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.page-title { font-size: 18px; font-weight: 800; color: var(--text-primary); margin: 0 0 3px; }
+.page-description { font-size: 12px; color: var(--text-secondary); margin: 0; }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: -1px; left: 25%; right: 25%;
+  height: 2px;
+  background: var(--gradient-primary);
+}
+
+/* Step Indicator */
+.step-indicator { display: flex; justify-content: center; align-items: center; margin-bottom: 14px; }
+
+.step {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  transition: all 0.4s ease;
+}
+
+.step.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 0 8px rgba(243,128,32,0.3); }
+.step.completed { background: var(--success); border-color: var(--success); color: white; }
+
+.step-line { width: 30px; height: 2px; background: var(--border); transition: background 0.4s ease; }
+.step-line.active { background: var(--gradient-primary); }
+
+.form-group { margin-bottom: 12px; }
+
+.form-label {
+  display: block; margin-bottom: 4px;
+  font-weight: 600; color: var(--text-secondary);
+  font-size: 10px; letter-spacing: 0.03em; text-transform: uppercase;
+}
+
+.input-wrapper {
+  position: relative; display: flex; align-items: center;
+  background: var(--bg-tertiary); border: 1.5px solid var(--border);
+  border-radius: 8px; transition: all 0.3s ease; overflow: hidden;
+}
+
+.input-wrapper:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+
+/* NEW: Dim the input wrapper when it becomes read-only in OTP step */
+.input-wrapper.readonly-active {
+  opacity: 0.6;
+  pointer-events: none; /* Prevents clicks entirely */
+}
+
+.input-icon {
+  position: absolute; left: 10px; color: var(--text-muted);
+  font-size: 12px; transition: all 0.3s ease; z-index: 1; pointer-events: none;
+}
+
+.input-wrapper:focus-within .input-icon { color: var(--primary); }
+
+.input-field {
+  width: 100%; padding: 8px 10px; padding-left: 30px; padding-right: 32px;
+  border: none; background: transparent; color: var(--text-primary);
+  font-size: 12px; font-weight: 500; outline: none; font-family: inherit;
+}
+
+.input-field::placeholder { color: var(--text-muted); font-weight: 400; }
+
+.password-toggle {
+  position: absolute; right: 4px; background: none; border: none;
+  color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px;
+  transition: all 0.25s ease; font-size: 12px; z-index: 1;
+}
+
+.password-toggle:hover { color: var(--primary); background: var(--primary-light); }
+
+.password-requirements { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+
+.password-strength { height: 2px; background: var(--bg-tertiary); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.password-strength-bar { height: 100%; border-radius: 2px; transition: width 0.3s ease, background 0.3s ease; width: 0; }
+.password-strength-bar.weak { width: 33%; background: #ef4444; }
+.password-strength-bar.medium { width: 66%; background: #f59e0b; }
+.password-strength-bar.strong { width: 100%; background: #22c55e; }
+
+.terms { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 10px; color: var(--text-secondary); line-height: 1.4; }
+.terms input { width: 13px; height: 13px; margin-right: 5px; margin-top: 1px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+.terms a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.terms a:hover { text-decoration: underline; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12px;
+  border: none; cursor: pointer; transition: all 0.3s ease; width: 100%;
+  justify-content: center; position: relative; overflow: hidden; font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--gradient-primary); color: white;
+  box-shadow: 0 3px 10px rgba(243,128,32,0.25);
+}
+
+.btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover::before { opacity: 1; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(243,128,32,0.35); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { background: var(--bg-tertiary); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-primary:disabled::before { display: none; }
+
+.login-link { text-align: center; margin-top: 12px; font-size: 11px; color: var(--text-secondary); padding-top: 10px; border-top: 1px solid var(--border-light); }
+.login-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
+.login-link a:hover { text-decoration: underline; }
+
+/* Messages */
+#msg {
+  padding: 7px 10px; border-radius: 8px; margin-bottom: 12px; display: none;
+  font-size: 10px; font-weight: 600; align-items: center; gap: 6px;
+  animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#msg.success { background: rgba(54,179,126,0.1); color: #4ade80; border: 1px solid rgba(54,179,126,0.2); display: flex; }
+#msg.error { background: rgba(222,53,11,0.1); color: #f87171; border: 1px solid rgba(222,53,11,0.2); display: flex; }
+body.light-mode #msg.success { color: #16a34a; }
+body.light-mode #msg.error { color: #dc2626; }
+
+/* OTP */
+.otp-container { display: flex; justify-content: space-between; gap: 5px; margin-top: 5px; }
+
+.otp-input {
+  width: 100% !important; 
+  max-width: 44px; 
+  height: 44px;
+  text-align: center; 
+  font-size: 17px; 
+  font-weight: 700; 
+  padding: 0;
+  border-radius: 8px; 
+  border: 1.5px solid var(--border);
+  background: var(--bg-tertiary); 
+  color: var(--text-primary);
+  transition: all 0.25s ease;
+  caret-color: var(--primary);
+}
+
+.otp-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); background: var(--bg-secondary); outline: none; }
+
+.otp-resend { text-align: center; margin-top: 10px; font-size: 10px; color: var(--text-secondary); }
+
+.otp-resend button {
+  background: none; border: none; color: var(--primary); font-weight: 700;
+  font-size: 10px; padding: 0; width: auto; display: inline;
+  text-decoration: underline; cursor: pointer; font-family: inherit;
+}
+
+.otp-resend button:hover { color: var(--primary-dark); }
+.otp-resend button:disabled { color: var(--text-muted); text-decoration: none; cursor: not-allowed; }
+
+@keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fa-spinner.fa-spin { animation: spin 1s linear infinite; }
+
+/* Responsive */
+@media (max-height: 700px) {
+  .left-panel { padding: 64px 30px 20px; }
+  .left-title { margin-bottom: 6px; }
+  .left-subtitle { margin-bottom: 14px; font-size: 12px; }
+  .left-divider { margin-bottom: 14px; }
+  .features-grid { gap: 6px; }
+  .feature-card { padding: 8px; }
+  .right-panel { padding: 64px 24px 20px; }
+  .page-header { margin-bottom: 12px; }
+  .card { padding: 16px; }
+  .form-group { margin-bottom: 10px; }
+}
+
+@media (max-width: 900px) {
+  html, body { overflow: auto; height: auto; }
+  .main-wrapper { flex-direction: column; height: auto; }
+  .left-panel, .center-divider { display: none; }
+  .right-panel { width: 100%; padding: 72px 20px 40px; min-height: 100vh; }
+  .signup-container { max-width: 380px; margin: 0 auto; }
+}
+
+@media (max-width: 480px) {
+  .top-nav { padding: 0 14px; height: 48px; }
+  .right-panel { padding: 60px 14px 24px; }
+  .card { padding: 16px 14px; }
+  .otp-input { max-width: 38px; height: 40px; font-size: 16px; }
+  .step-line { width: 24px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<nav class="top-nav">
+  <a href="#" class="nav-brand">
+    <img src="{{ url_for('static', filename='logo7.svg') }}" alt="G Host" class="brand-logo">
+  </a>
+  <button class="nav-icon-btn" id="darkModeToggle" title="Toggle Light Mode">
+    <i class="fas fa-sun"></i>
+  </button>
+</nav>
+
+<div class="main-wrapper">
+  <section class="left-panel">
+    <div class="left-content">
+      <h1 class="left-title">Create Your<br><span class="highlight">G HOST</span> Account</h1>
+      <p class="left-subtitle">Get started with blazing-fast hosting in seconds. Free SSL, NVMe storage, and 24/7 expert support included.</p>
+      <div class="left-divider"></div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+          <div class="feature-name">Instant Setup</div>
+          <div class="feature-desc">Account ready in 60 seconds</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-hdd"></i></div>
+          <div class="feature-name">SSD Storage</div>
+          <div class="feature-desc">NVMe SSDs for fast access</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="feature-name">Free SSL</div>
+          <div class="feature-desc">Auto SSL for all domains</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="feature-name">Free Hosting</div>
+          <div class="feature-desc">Powerful at zero cost</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="center-divider"></div>
+
+  <section class="right-panel">
+    <div class="signup-container">
+      <div class="page-header">
+        <img src="{{ url_for('static', filename='logo7.svg') }}" alt="G Host" class="page-logo">
+        <h1 class="page-title">Sign Up</h1>
+        <p class="page-description">Create your G Host account</p>
+      </div>
+      <div class="card">
+        <div class="step-indicator">
+          <div class="step active" id="step1">1</div>
+          <div class="step-line" id="stepLine"></div>
+          <div class="step" id="step2">2</div>
+        </div>
+        <div id="msg"></div>
+        <form id="signupForm">
+          <div class="form-group" id="emailGroup">
+            <label class="form-label" for="email">Email Address</label>
+            <div class="input-wrapper" id="emailWrapper">
+              <i class="fas fa-envelope input-icon"></i>
+              <input id="email" class="input-field" placeholder="you@example.com" type="email" required autocomplete="email" />
+            </div>
+          </div>
+          <div class="form-group" id="passwordGroup">
+            <label class="form-label" for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="fas fa-lock input-icon"></i>
+              <input id="password" class="input-field" placeholder="Create a password" type="password" required autocomplete="new-password" />
+              <button type="button" class="password-toggle" id="passwordToggle" title="Toggle password visibility"><i class="fas fa-eye"></i></button>
+            </div>
+            <div class="password-requirements">Minimum 5 characters</div>
+            <div class="password-strength"><div class="password-strength-bar" id="strengthBar"></div></div>
+          </div>
+          <div class="form-group" id="otpGroup" style="display:none;">
+            <label class="form-label">Enter Verification Code</label>
+            <div class="otp-container">
+              <input type="text" class="otp-input" maxlength="1" data-index="0" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-input" maxlength="1" data-index="1" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-input" maxlength="1" data-index="2" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-input" maxlength="1" data-index="3" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-input" maxlength="1" data-index="4" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-input" maxlength="1" data-index="5" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]" />
+            </div>
+            <div class="otp-resend">Didn't receive the code? <button type="button" id="resendOtp">Resend Code</button></div>
+          </div>
+          <div class="terms" id="termsGroup">
+            <input type="checkbox" id="agreeTerms" required />
+            <label for="agreeTerms">I agree to the <a href="/agreement" target="_blank">Terms of Service</a> and <a href="/agreement" target="_blank">Privacy Policy</a></label>
+          </div>
+          <button type="submit" class="btn btn-primary" id="signupBtn"><i class="fas fa-user-plus"></i> Create Account</button>
+        </form>
+        <div class="login-link">Already have an account? <a href="/">Login</a></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// Particle Background
+(function(){const c=document.getElementById('bgCanvas'),x=c.getContext('2d');let p=[],w,h;function r(){w=c.width=innerWidth;h=c.height=innerHeight}r();addEventListener('resize',r);class P{constructor(){this.reset()}reset(){this.x=Math.random()*w;this.y=Math.random()*h;this.s=Math.random()*1.5+.5;this.sx=(Math.random()-.5)*.3;this.sy=(Math.random()-.5)*.3;this.o=Math.random()*.35+.1}update(){this.x+=this.sx;this.y+=this.sy;if(this.x<0||this.x>w||this.y<0||this.y>h)this.reset()}draw(){x.beginPath();x.arc(this.x,this.y,this.s,0,Math.PI*2);x.fillStyle=`rgba(243,128,32,${this.o})`;x.fill()}}const n=Math.min(50,Math.floor(w*h/20000));for(let i=0;i<n;i++)p.push(new P);function a(){x.clearRect(0,0,w,h);p.forEach(q=>{q.update();q.draw()});for(let i=0;i<p.length;i++)for(let j=i+1;j<p.length;j++){const d=Math.hypot(p[i].x-p[j].x,p[i].y-p[j].y);if(d<90){x.beginPath();x.moveTo(p[i].x,p[i].y);x.lineTo(p[j].x,p[j].y);x.strokeStyle=`rgba(243,128,32,${.05*(1-d/90)})`;x.lineWidth=.5;x.stroke()}}requestAnimationFrame(a)}a()})();
+
+// Dark Mode
+const dm=document.getElementById("darkModeToggle"),b=document.body,st=localStorage.getItem("theme")||"dark";st==="light"?(b.classList.add("light-mode"),dm.innerHTML='<i class="fas fa-moon"></i>'):dm.innerHTML='<i class="fas fa-sun"></i>';dm.addEventListener("click",()=>{b.classList.toggle("light-mode");b.classList.contains("light-mode")?(dm.innerHTML='<i class="fas fa-moon"></i>',localStorage.setItem("theme","light")):(dm.innerHTML='<i class="fas fa-sun"></i>',localStorage.setItem("theme","dark"))});
+
+// Password Toggle
+const pi=document.getElementById('password'),pt=document.getElementById('passwordToggle');pt.addEventListener('click',()=>{const t=pi.type==='password'?'text':'password';pi.type=t;pt.querySelector('i').className=t==='password'?'fas fa-eye':'fas fa-eye-slash'});
+
+// Messages
+const msg=document.getElementById('msg');function showMsg(t,o=!0,m=4e3){msg.className=o?'success':'error';msg.innerHTML=o?`<i class="fas fa-check-circle"></i> ${t}`:`<i class="fas fa-exclamation-circle"></i> ${t}`;msg.style.display='flex';m>0&&setTimeout(()=>{msg.style.display='none'},m)}
+
+// Password Strength
+const sb=document.getElementById('strengthBar');pi.addEventListener('input',()=>{const p=pi.value;let s=0;p.length>=5&&s++;p.length>=8&&s++;/[A-Z]/.test(p)&&/[a-z]/.test(p)&&s++;/[0-9]/.test(p)&&s++;/[^A-Za-z0-9]/.test(p)&&s++;sb.className='password-strength-bar';p.length===0?sb.style.width='0':s<=2?sb.classList.add('weak'):s<=3?sb.classList.add('medium'):sb.classList.add('strong')});
+
+// OTP Inputs
+const oi=document.querySelectorAll('.otp-input');oi.forEach(i=>{i.addEventListener('input',e=>{const v=e.target.value,idx=+e.target.dataset.index;v&&idx<oi.length-1&&oi[idx+1].focus()});i.addEventListener('keydown',e=>{const idx=+e.target.dataset.index;e.key==='Backspace'&&!e.target.value&&idx>0&&oi[idx-1].focus()});i.addEventListener('paste',e=>{e.preventDefault();const d=e.clipboardData.getData('text').trim();/^\d{6}$/.test(d)&&(oi.forEach((inp,k)=>inp.value=d[k]||''),oi[5].focus())})});function getOtp(){return Array.from(oi).map(i=>i.value).join('')}function clearOtp(){oi.forEach(i=>i.value='');oi[0].focus()}
+
+// Signup Logic
+let otpSent=!1,rTimer=null,rCount=0,sPass='';function upResend(){const b=document.getElementById('resendOtp');rCount>0?(b.disabled=!0,b.textContent=`Resend Code (${rCount}s)`):(b.disabled=!1,b.textContent='Resend Code')}function startCount(){rCount=60;upResend();rTimer=setInterval(()=>{rCount--;upResend();rCount<=0&&clearInterval(rTimer)},1e3)}
+
+document.getElementById('resendOtp').addEventListener('click',async()=>{if(rCount>0)return;const e=document.getElementById('email').value.trim();if(!e)return showMsg('Email is required',!1);const b=document.getElementById('resendOtp'),o=b.textContent;b.disabled=!0;b.textContent='Sending...';try{const r=await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:sPass,resend:!0})}),j=await r.json();j.success?(showMsg('OTP resent to your email',!0),clearOtp(),startCount()):showMsg(j.message||'Failed to resend OTP',!1)}catch(e){showMsg('Network error. Please try again.',!1)}finally{b.disabled=!1;b.textContent=o}});
+
+document.getElementById('signupForm').addEventListener('submit',async e=>{e.preventDefault();const em=document.getElementById('email'),pw=document.getElementById('password'),at=document.getElementById('agreeTerms'),subBtn=document.getElementById('signupBtn'),ob=subBtn.innerHTML;if(!em.value.trim())return showMsg('Please enter email',!1);if(!otpSent&&(!pw.value||pw.value.length<5))return showMsg('Password must be at least 5 characters',!1);if(!at.checked&&!otpSent)return showMsg('Please agree to the Terms',!1);subBtn.disabled=!0;subBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing...';try{if(!otpSent){sPass=pw.value;const r=await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em.value.trim(),password:pw.value})}),j=await r.json();if(j.success){showMsg('OTP sent to your email',!0);otpSent=!0;
+
+// NEW: Make email read-only and dim it visually
+em.readOnly=true;
+document.getElementById('emailWrapper').classList.add('readonly-active');
+
+document.getElementById('step1').classList.add('completed');document.getElementById('step1').classList.remove('active');document.getElementById('stepLine').classList.add('active');document.getElementById('step2').classList.add('active');document.getElementById('otpGroup').style.display='block';document.getElementById('passwordGroup').style.display='none';document.getElementById('termsGroup').style.display='none';document.getElementById('emailGroup').style.marginBottom='6px';subBtn.innerHTML='<i class="fas fa-key"></i> Verify OTP';setTimeout(()=>oi[0].focus(),100);startCount()}else showMsg(j.message||'Signup failed',!1)}else{const o=getOtp();if(o.length!==6)return showMsg('Please enter complete OTP',!1);const r=await fetch('/api/ver-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em.value.trim(),otp:o})}),j=await r.json();j.success?(showMsg('OTP verified! Redirecting...',!0,2e3),setTimeout(()=>window.location='/dashboard',1500)):(showMsg(j.message||'OTP verification failed',!1),clearOtp())}}catch(e){showMsg('Network error. Please try again.',!1)}finally{subBtn.disabled=!1;subBtn.innerHTML=otpSent?'<i class="fas fa-key"></i> Verify OTP':ob}});
+</script>
+</body>
+</html>

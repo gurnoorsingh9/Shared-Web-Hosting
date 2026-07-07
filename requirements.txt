@@ -1,0 +1,7 @@
+Flask
+pymongo
+dnspython
+PyJWT
+mailjet-rest
+user-agents
+Werkzeug

@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>G Host - Professional Cloud Hosting</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+  --primary: #F38020;
+  --primary-dark: #E85D04;
+  --primary-light: rgba(243, 128, 32, 0.08);
+  --secondary: #FF5630;
+  --success: #36B37E;
+  --error: #DE350B;
+  --warning: #FFAB00;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F4F5F7;
+  --bg-tertiary: #EBECF0;
+  --bg-dark: #172B4D;
+  --border: #DFE1E6;
+  --border-light: #F4F5F7;
+  --text-primary: #172B4D;
+  --text-secondary: #5E6C84;
+  --text-muted: #8993A4;
+  --text-inverse: #FFFFFF;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1), 0 6px 10px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1);
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+body.dark-mode {
+  --bg-primary: #0F1419;
+  --bg-secondary: #161B22;
+  --bg-tertiary: #21262D;
+  --bg-dark: #0D1117;
+  --border: #30363D;
+  --border-light: #21262D;
+  --text-primary: #F0F6FC;
+  --text-secondary: #8B949E;
+  --text-muted: #656D76;
+  --text-inverse: #0F1419;
+  --primary-light: rgba(243, 128, 32, 0.15);
+  background: #0F1419;
+  color: #F0F6FC;
+}
+
+body.dark-mode .top-nav,
+body.dark-mode .sidebar,
+body.dark-mode .card,
+body.dark-mode .modal-content {
+  background: var(--bg-secondary);
+  border-color: var(--border);
+}
+
+body.dark-mode .sidebar-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; transition: background 0.2s ease; }
+.sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+.sidebar { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+  overflow-x: hidden;
+}
+
+.top-nav {
+  position: fixed; top: 0; left: 0; right: 0; height: 64px;
+  background: var(--bg-primary); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; z-index: 1000; box-shadow: var(--shadow-xs);
+}
+.nav-left { display: flex; align-items: center; gap: 32px; }
+.nav-brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; white-space: nowrap; }
+.nav-brand i { color: var(--primary); font-size: 24px; }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-icon-btn { background: none; border: none; width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; transition: var(--transition); position: relative; }
+.nav-icon-btn:hover { background: var(--bg-secondary); color: var(--primary); }
+.notification-badge { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: var(--secondary); border-radius: 50%; border: 2px solid var(--bg-primary); }
+.nav-user { display: flex; align-items: center; gap: 12px; padding: 6px 12px; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); position: relative; }
+.nav-user:hover { background: var(--bg-secondary); }
+.nav-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.nav-user-info { display: flex; flex-direction: column; }
+.nav-user-name { font-weight: 600; font-size: 14px; line-height: 1.2; }
+.nav-user-role { font-size: 12px; color: var(--text-muted); line-height: 1.2; }
+.nav-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); min-width: 200px; display: none; overflow: hidden; z-index: 1001; }
+.nav-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
+.nav-dropdown-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-primary); text-decoration: none; transition: var(--transition); border: none; background: none; width: 100%; text-align: left; font-size: 14px; cursor: pointer; }
+.nav-dropdown-item:hover { background: var(--bg-secondary); }
+.nav-dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Notification popup */
+.notification-popup {
+  position: absolute;
+  top: 100%;
+  right: -8px;
+  margin-top: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 300px;
+  display: none;
+  z-index: 1001;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+.notification-popup.active { display: block; }
+.notification-popup-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.notification-popup-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+.notification-popup-body {
+  padding: 24px 16px;
+  text-align: center;
+}
+.notification-popup-icon {
+  font-size: 36px;
+  color: var(--text-muted);
+  opacity: 0.4;
+  margin-bottom: 12px;
+}
+.notification-popup-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.notification-popup::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-right: none;
+  border-bottom: none;
+  transform: rotate(45deg);
+}
+
+.sidebar {
+  position: fixed; left: 0; top: 64px; bottom: 0; width: 240px;
+  background: var(--bg-primary); border-right: 1px solid var(--border);
+  z-index: 900; transition: transform 0.3s ease;
+  display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
+}
+.sidebar-section { padding: 16px 0; flex-shrink: 0; }
+.sidebar-section-title { padding: 8px 24px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-item { display: flex; align-items: center; gap: 12px; padding: 10px 24px; color: var(--text-secondary); text-decoration: none; transition: var(--transition); position: relative; font-weight: 500; white-space: nowrap; }
+.sidebar-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.sidebar-item.active { background: var(--primary-light); color: var(--primary); }
+.sidebar-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary); }
+.sidebar-item i { width: 20px; text-align: center; }
+
+.main-content { margin-left: 240px; margin-top: 64px; padding: 24px; min-height: calc(100vh - 64px); background: var(--bg-secondary); }
+.page-header { margin-bottom: 24px; }
+.page-title { font-size: 28px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; }
+.page-description { font-size: 16px; color: var(--text-secondary); margin: 0; }
+
+.dashboard-stats { display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+.stat-card { flex: 1; min-width: 200px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); display: flex; align-items: center; gap: 16px; }
+.stat-card:hover { box-shadow: var(--shadow-md); }
+.stat-icon { width: 48px; height: 48px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.stat-icon.usage { background: rgba(243, 128, 32, 0.1); color: var(--primary); }
+.stat-icon.sites { background: rgba(54, 179, 126, 0.1); color: var(--success); }
+.stat-icon.files { background: rgba(0, 102, 255, 0.1); color: #0066FF; }
+.stat-content { flex: 1; }
+.stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-label { font-size: 14px; color: var(--text-secondary); margin: 0; }
+.stat-progress { margin-top: 8px; height: 6px; background: var(--bg-tertiary); border-radius: var(--radius-sm); overflow: hidden; }
+.stat-progress-bar { height: 100%; background: var(--primary); border-radius: var(--radius-sm); transition: width 0.6s ease; }
+
+.quick-actions { display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+.action-card { flex: 1; min-width: 200px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); cursor: pointer; text-align: center; }
+.action-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.action-card.disabled { opacity: 0.5; cursor: not-allowed; }
+.action-card.disabled:hover { transform: none; box-shadow: var(--shadow-sm); }
+.action-icon { width: 48px; height: 48px; border-radius: var(--radius-lg); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 12px; }
+.action-card.disabled .action-icon { background: var(--bg-tertiary); color: var(--text-muted); }
+.action-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px 0; }
+.action-description { font-size: 14px; color: var(--text-secondary); margin: 0; }
+
+.card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; transition: var(--transition); margin-bottom: 24px; }
+.card:hover { box-shadow: var(--shadow-md); }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 10px; }
+.card-title i { color: var(--primary); }
+.card-body { padding: 20px; }
+.card-footer { padding: 16px 20px; background: var(--bg-secondary); border-top: 1px solid var(--border); }
+
+.site-card { display: flex; align-items: center; justify-content: space-between; padding: 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 16px; }
+.site-info { display: flex; align-items: center; gap: 16px; }
+.site-status { width: 12px; height: 12px; border-radius: 50%; background: var(--success); position: relative; }
+.site-status::after { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; border-radius: 50%; background: var(--success); opacity: 0.3; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 0.3; } 70% { transform: scale(1.3); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+.site-details { display: flex; flex-direction: column; }
+.site-url { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px 0; word-break: break-all; }
+.site-url a { color: var(--primary); text-decoration: none; }
+.site-url a:hover { text-decoration: underline; }
+.site-meta { font-size: 14px; color: var(--text-secondary); margin: 0; }
+.site-actions { display: flex; gap: 12px; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+.empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+.empty-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0 0 8px 0; }
+.empty-description { font-size: 14px; margin: 0 0 20px 0; }
+
+.file-list { display: flex; flex-direction: column; gap: 12px; }
+.file-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: var(--radius-md); transition: var(--transition); }
+.file-item:hover { background: var(--bg-tertiary); transform: translateX(2px); }
+.file-info { display: flex; align-items: center; gap: 12px; }
+.file-icon { width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; }
+.file-details { display: flex; flex-direction: column; }
+.file-name { font-weight: 500; color: var(--text-primary); margin: 0 0 2px 0; word-break: break-all; }
+.file-size { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: var(--radius-md); font-weight: 500; font-size: 14px; border: none; cursor: pointer; transition: var(--transition); text-decoration: none; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-primary:disabled { background: var(--bg-tertiary); color: var(--text-muted); cursor: not-allowed; transform: none; }
+.btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--bg-secondary); }
+.btn-danger { background: var(--error); color: white; }
+.btn-danger:hover { background: #B91C1C; }
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-lg { padding: 12px 24px; font-size: 16px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); }
+.modal { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); max-width: 90%; width: 480px; max-height: 90vh; overflow-y: auto; animation: modalSlideIn 0.3s ease-out; }
+@keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { padding: 20px; border-bottom: 1px solid var(--border); }
+.modal-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0; }
+.modal-body { padding: 20px; }
+.modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-primary); font-size: 14px; }
+.input-field, .select-field, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-primary); color: var(--text-primary); font-size: 14px; transition: var(--transition); }
+.input-field:focus, .select-field:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+.toast { position: fixed; top: 80px; right: 24px; background: var(--bg-dark); color: white; padding: 12px 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; min-width: 300px; transform: translateX(400px); transition: transform 0.3s ease; z-index: 3000; }
+.toast.show { transform: translateX(0); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--error); }
+
+.pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; }
+.pagination-btn { padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-primary); border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
+.pagination-btn:hover:not(:disabled) { background: var(--primary); color: white; border-color: var(--primary); }
+.pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.pagination-info { padding: 0 16px; color: var(--text-secondary); font-size: 14px; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.logs-table-container { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
+.logs-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.logs-table thead { background: var(--bg-secondary); }
+.logs-table th { padding: 16px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid var(--border); white-space: nowrap; }
+.logs-table tbody tr { border-bottom: 1px solid var(--border-light); transition: var(--transition); }
+.logs-table tbody tr:hover { background: var(--bg-secondary); }
+.logs-table tbody tr:last-child { border-bottom: none; }
+.logs-table td { padding: 16px; color: var(--text-primary); vertical-align: middle; border-bottom: 1px solid var(--border-light); }
+.logs-table tbody tr:last-child td { border-bottom: none; }
+.logs-table .timestamp { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+.logs-table .action-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.logs-table .action-upload { background: var(--primary-light); color: var(--primary); }
+.logs-table .action-delete { background: rgba(222, 53, 11, 0.1); color: var(--error); }
+.logs-table .action-other { background: var(--bg-tertiary); color: var(--text-secondary); }
+.logs-table .status-success { color: var(--success); font-weight: 600; }
+.logs-table .status-failed { color: var(--error); font-weight: 600; }
+.logs-table .ip-address { font-family: 'Courier New', monospace; background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+.logs-table .details-cell { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logs-table .file-tag { background: var(--primary); color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+.logs-table .method-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; font-family: 'Courier New', monospace; }
+.logs-table .method-get { background: rgba(0, 102, 255, 0.1); color: #0066FF; }
+.logs-table .method-post { background: rgba(54, 179, 126, 0.1); color: var(--success); }
+.logs-table .method-delete { background: rgba(222, 53, 11, 0.1); color: var(--error); }
+
+.user-profile-card { display: flex; align-items: center; gap: 20px; padding: 24px; background: var(--bg-secondary); border-radius: var(--radius-lg); margin-bottom: 24px; }
+.user-profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 600; flex-shrink: 0; }
+.user-profile-info { flex: 1; }
+.user-profile-name { font-size: 24px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.user-profile-email { font-size: 16px; color: var(--text-secondary); margin: 0; }
+.user-profile-plan { display: inline-block; padding: 4px 12px; background: var(--primary-light); color: var(--primary); border-radius: 20px; font-size: 14px; font-weight: 600; margin-top: 8px; }
+.user-stats { display: flex; gap: 20px; margin-top: 16px; }
+.user-stat { display: flex; flex-direction: column; align-items: center; padding: 16px; background: var(--bg-primary); border-radius: var(--radius-md); flex: 1; }
+.user-stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.user-stat-label { font-size: 14px; color: var(--text-secondary); margin: 0; text-align: center; }
+
+/* ANALYTICS STYLES */
+.analytics-container { display: flex; flex-direction: column; gap: 24px; }
+.analytics-row { display: flex; gap: 20px; flex-wrap: wrap; }
+.analytics-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); flex: 1; min-width: 250px; }
+.analytics-card:hover { box-shadow: var(--shadow-md); }
+.analytics-stat { display: flex; align-items: center; gap: 16px; }
+.analytics-icon { width: 48px; height: 48px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.analytics-icon.views { background: rgba(243, 128, 32, 0.1); color: var(--primary); }
+.analytics-icon.unique { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.analytics-icon.pages { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
+.analytics-icon.today { background: rgba(251, 146, 60, 0.1); color: #fb923c; }
+.analytics-content { flex: 1; }
+.analytics-value { font-size: 24px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.analytics-label { font-size: 14px; color: var(--text-secondary); margin: 0; }
+.chart-container { position: relative; height: 300px; width: 100%; }
+.doughnut-container { position: relative; height: 200px; width: 100%; }
+.analytics-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.analytics-table thead { background: var(--bg-secondary); }
+.analytics-table th { padding: 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid var(--border); }
+.analytics-table tbody tr { border-bottom: 1px solid var(--border-light); }
+.analytics-table tbody tr:hover { background: var(--bg-secondary); }
+.analytics-table td { padding: 12px; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
+
+/* Custom scrollbar for analytics scrollable areas */
+.analytics-scroll::-webkit-scrollbar { width: 5px; }
+.analytics-scroll::-webkit-scrollbar-track { background: transparent; }
+.analytics-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.analytics-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+.analytics-scroll { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.active { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .nav-user-info { display: none; }
+  .dashboard-stats { flex-direction: column; }
+  .quick-actions { flex-direction: column; }
+  .page-title { font-size: 24px; }
+  .modal { width: 95%; }
+  .logs-table-container { overflow-x: auto; }
+  .logs-table { min-width: 800px; }
+  .logs-table th, .logs-table td { padding: 12px 8px; }
+  .logs-table .details-cell { max-width: 150px; }
+  .site-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .site-info { width: 100%; }
+  .site-actions { width: 100%; justify-content: space-between; }
+  .site-actions .btn { flex: 1; justify-content: center; }
+  #logsControls { flex-direction: column; gap: 12px; }
+  #logsControls > div { width: 100%; }
+  .user-profile-card { flex-direction: column; text-align: center; }
+  .user-stats { flex-direction: column; }
+  .analytics-row { flex-direction: column; }
+  .analytics-card { min-width: 100%; }
+  .analytics-card[style*="flex:2"], .analytics-card[style*="flex: 2"] { flex: 1 !important; }
+  .analytics-geo-wrap { flex-direction: column !important; }
+  .analytics-geo-wrap > div { flex: 1 !important; width: 100% !important; }
+  .doughnut-container { height: 180px; }
+  .chart-container { height: 250px; }
+  .notification-popup { width: 280px; right: -40px; }
+  .notification-popup::before { right: 48px; }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .analytics-row { flex-wrap: wrap; }
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-end { text-align: right; }
+.mt-0 { margin-top: 0; } .mt-1 { margin-top: 8px; } .mt-2 { margin-top: 16px; } .mt-3 { margin-top: 24px; }
+.mb-0 { margin-bottom: 0; } .mb-1 { margin-bottom: 8px; } .mb-2 { margin-bottom: 16px; } .mb-3 { margin-bottom: 24px; }
+
+.brand-logo { height: 40px; width: auto; max-width: 200px; object-fit: contain; transition: var(--transition); }
+.nav-brand:hover .brand-logo { transform: scale(1.05); }
+@media (max-width: 768px) { .brand-logo { height: 36px; max-width: 160px; } }
+@media (max-width: 480px) { .brand-logo { height: 32px; max-width: 140px; } }
+body.dark-mode .brand-logo { filter: brightness(1.2) contrast(1.1); }
+
+#uploadZoneFiles { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 40px 20px; transition: var(--transition); cursor: pointer; }
+#uploadZoneFiles.dragover { border-color: var(--primary); background: var(--primary-light); }
+#uploadZoneFiles:hover { border-color: var(--primary); }
+#selectedFiles { margin-top: 16px; }
+.selected-file { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: 8px; }
+.selected-file-name { font-weight: 500; color: var(--text-primary); }
+.selected-file-size { font-size: 12px; color: var(--text-muted); }
+.selected-file-remove { background: none; border: none; color: var(--error); cursor: pointer; padding: 4px; }
+.selected-file-remove:hover { color: #B91C1C; }
+
+.jvm-map { background: transparent !important; }
+.brand-logo { height: 40px; width: auto; max-width: 200px; object-fit: contain; transition: var(--transition); }
+/* logo switch */
+
+.logo-dark{
+  display:none;
+}
+
+body.dark-mode .logo-light{
+  display:none;
+}
+
+body.dark-mode .logo-dark{
+  display:block;
+}
+</style>
+</head>
+<body>
+<!-- TOP NAVIGATION -->
+<nav class="top-nav">
+  <div class="nav-left">
+    <button class="nav-icon-btn mobile-menu-toggle" id="mobileMenuToggle" style="display: none;">
+      <i class="fas fa-bars"></i>
+    </button>
+    <a href="#" class="nav-brand">
+      <img src="{{ url_for('static', filename='logo7.svg') }}"
+     alt="G Host"
+     class="brand-logo logo-light">
+
+<img src="{{ url_for('static', filename='logoDark.svg') }}"
+     alt="G Host"
+     class="brand-logo logo-dark">
+    </a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-icon-btn" id="darkModeToggle" title="Toggle Dark Mode">
+      <i class="fas fa-moon"></i>
+    </button>
+    <!-- Notification button with popup -->
+    <button class="nav-icon-btn" id="notificationBtn" title="Notifications">
+      <i class="fas fa-bell"></i>
+      <span class="notification-badge"></span>
+      <div class="notification-popup" id="notificationPopup">
+        <div class="notification-popup-header">
+          <p class="notification-popup-title">Notifications</p>
+        </div>
+        <div class="notification-popup-body">
+          <div class="notification-popup-icon">
+            <i class="fas fa-bell-slash"></i>
+          </div>
+          <p class="notification-popup-text">No notification yet</p>
+        </div>
+      </div>
+    </button>
+    <div class="nav-user" id="navUser">
+      <div class="nav-user-avatar" id="navUserAvatar">U</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="navUserName">User</div>
+        <div class="nav-user-role">Free Plan</div>
+      </div>
+      <i class="fas fa-chevron-down"></i>
+      <div class="nav-dropdown" id="navDropdown">
+        <a href="#" class="nav-dropdown-item" id="navSettings"><i class="fas fa-cog"></i> Settings</a>
+        <div class="nav-dropdown-divider"></div>
+        <button class="nav-dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Main</div>
+    <a href="#" class="sidebar-item active" data-tab="home"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="#" class="sidebar-item" data-tab="sites"><i class="fas fa-globe"></i> Sites</a>
+    <a href="#" class="sidebar-item" data-tab="files"><i class="fas fa-folder"></i> Files</a>
+    <a href="#" class="sidebar-item" data-tab="analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Management</div>
+    <a href="#" class="sidebar-item" data-tab="plan"><i class="fas fa-credit-card"></i> Billing & Plans</a>
+    <a href="#" class="sidebar-item" data-tab="logs"><i class="fas fa-history"></i> Activity Logs</a>
+    <a href="#" class="sidebar-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Support</div>
+    <a href="#" class="sidebar-item" data-tab="help"><i class="fas fa-question-circle"></i> Help Center</a>
+    <a href="#" class="sidebar-item" data-tab="about"><i class="fas fa-info-circle"></i> About</a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- DASHBOARD TAB -->
+  <div class="tab-content active" id="homeTab">
+    <div class="page-header"><h1 class="page-title">Dashboard</h1><p class="page-description">Welcome back! Here's what's happening with your hosting.</p></div>
+    <div class="dashboard-stats">
+      <div class="stat-card"><div class="stat-icon usage"><i class="fas fa-hdd"></i></div><div class="stat-content"><h3 class="stat-value" id="storageValue">0 MB</h3><p class="stat-label">Storage Used</p><div class="stat-progress"><div class="stat-progress-bar" id="storageBar" style="width: 0%"></div></div></div></div>
+      <div class="stat-card"><div class="stat-icon sites"><i class="fas fa-globe"></i></div><div class="stat-content"><h3 class="stat-value" id="sitesCount">0</h3><p class="stat-label">Active Sites</p></div></div>
+      <div class="stat-card"><div class="stat-icon files"><i class="fas fa-file-code"></i></div><div class="stat-content"><h3 class="stat-value" id="filesCount">0</h3><p class="stat-label">Total Files</p></div></div>
+    </div>
+    <div class="quick-actions">
+      <div class="action-card" id="uploadAction"><div class="action-icon"><i class="fas fa-cloud-upload-alt"></i></div><h3 class="action-title">Upload Files</h3><p class="action-description">Add new files to your site</p><input type="file" id="fileInput" multiple hidden accept=".html,.css,.js,.jpg,.png,.jpeg,.gif" /></div>
+      <div class="action-card" id="createSiteAction"><div class="action-icon"><i class="fas fa-plus-circle"></i></div><h3 class="action-title">Create Site</h3><p class="action-description">Deploy a new website</p></div>
+      <div class="action-card" id="fileManagerAction"><a href="/filemanager" target="_blank" style="text-decoration:none;color:inherit;"><div class="action-icon"><i class="fas fa-folder-open"></i></div><h3 class="action-title">File Manager</h3><p class="action-description">Manage all your files</p></a></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="fas fa-clock"></i> Recent Files</h3></div>
+      <div class="card-body" id="recentFiles"></div>
+      <div class="card-footer" id="filesPagination" style="display:none;"><div class="pagination"><button class="pagination-btn" id="prevPageBtn"><i class="fas fa-chevron-left"></i> Previous</button><span class="pagination-info" id="paginationInfo"></span><button class="pagination-btn" id="nextPageBtn">Next <i class="fas fa-chevron-right"></i></button></div></div>
+    </div>
+  </div>
+
+  <!-- SITES TAB -->
+  <div class="tab-content" id="sitesTab">
+    <div class="page-header"><h1 class="page-title">Sites</h1><p class="page-description">Manage your deployed websites</p></div>
+    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-globe"></i> Your Sites</h3><button class="btn btn-primary" id="createSiteBtn"><i class="fas fa-plus"></i> New Site</button></div><div class="card-body" id="sitesList"></div></div>
+  </div>
+
+  <!-- FILES TAB -->
+  <div class="tab-content" id="filesTab">
+    <div class="page-header"><h1 class="page-title">Files</h1><p class="page-description">Manage your uploaded files</p></div>
+    <div class="card mb-3">
+      <div class="card-header"><h3 class="card-title"><i class="fas fa-upload"></i> Upload Files</h3></div>
+      <div class="card-body">
+        <div class="empty-state" id="uploadZoneFiles"><i class="fas fa-cloud-upload-alt empty-icon"></i><h3 class="empty-title">Drop files here or click to upload</h3><p class="empty-description">Support for HTML, CSS, JS files up to 5MB</p><input type="file" id="fileInputFiles" multiple hidden accept=".html,.css,.js,.jpg,.png,.jpeg,.gif" /><button class="btn btn-primary" id="chooseFileBtn"><i class="fas fa-folder-open"></i> Choose Files</button></div>
+        <div id="selectedFiles" style="margin-top:16px;"></div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;"><button class="btn btn-primary" id="uploadFileBtn"><i class="fas fa-upload"></i> Upload Selected</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="fas fa-folder"></i> All Files</h3><a href="/filemanager" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-external-link-alt"></i> File Manager</a></div>
+      <div class="card-body" id="allFiles"></div>
+      <div class="card-footer" id="allFilesPagination" style="display:none;"><div class="pagination"><button class="pagination-btn" id="prevAllFilesBtn"><i class="fas fa-chevron-left"></i> Previous</button><span class="pagination-info" id="allFilesPaginationInfo"></span><button class="pagination-btn" id="nextAllFilesBtn">Next <i class="fas fa-chevron-right"></i></button></div></div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS TAB -->
+  <div class="tab-content" id="analyticsTab">
+    <div class="page-header">
+      <h1 class="page-title">Analytics</h1>
+      <p class="page-description">Track your site performance and visitor metrics</p>
+    </div>
+    <div id="analyticsContent">
+      <div style="height:300px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);">
+        <div style="text-align:center;">
+          <i class="fas fa-chart-area" style="font-size:48px;margin-bottom:16px;opacity:0.3;"></i>
+          <p>Click Analytics to load data</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAN TAB -->
+  <div class="tab-content" id="planTab">
+    <div class="page-header"><h1 class="page-title">Billing & Plans</h1><p class="page-description">Manage your subscription and billing</p></div>
+    <div class="dashboard-stats">
+      <div class="card" style="flex:1;"><div class="card-header"><h3 class="card-title"><i class="fas fa-gift"></i> Free Plan</h3></div><div class="card-body"><div style="text-align:center;"><div style="font-size:32px;font-weight:700;color:var(--text-primary);">₹0<span style="font-size:16px;font-weight:400;">/month</span></div><ul style="text-align:left;margin:24px 0;padding:0;"><li style="margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-check" style="color:var(--success);"></i> 100MB Storage</li><li style="margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-check" style="color:var(--success);"></i> 1 Static Site</li><li style="margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-check" style="color:var(--success);"></i> HTML, CSS, JS Support</li></ul><button class="btn btn-secondary" style="width:100%;" disabled><i class="fas fa-check-circle"></i> Current Plan</button></div></div></div>
+      <div class="card" style="flex:1;"><div class="card-header"><h3 class="card-title"><i class="fas fa-star"></i> Standard Plan</h3></div><div class="card-body"><div style="text-align:center;"><div style="font-size:32px;font-weight:700;color:var(--text-primary);">₹299<span style="font-size:16px;font-weight:400;">/month</span></div><ul style="text-align:left;margin:24px 0;padding:0;"><li style="margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-check" style="color:var(--success);"></i> 500MB Storage</li><li style="margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-check" style="color:var(--success);"></i> 2 Static Sites</li><li style="margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-check" style="color:var(--success);"></i> HTML, CSS, JS, PHP Support</li><li style="margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-check" style="color:var(--success);"></i> Priority Support</li></ul><button class="btn btn-primary" style="width:100%;"><i class="fas fa-rocket"></i> Upgrade Soon</button></div></div></div>
+    </div>
+  </div>
+
+  <!-- LOGS TAB -->
+  <div class="tab-content" id="logsTab">
+    <div class="page-header"><h1 class="page-title">Activity Logs</h1><p class="page-description">Monitor your account activity and events</p></div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3><button class="btn btn-ghost btn-sm" id="refreshLogs"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+      <div class="card-body">
+        <div id="logsControls" style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;"><label class="form-label">Month</label><select class="select-field" id="monthSelect"><option value="">Select Month</option></select></div>
+          <div style="flex:1;min-width:200px;"><label class="form-label">Day</label><select class="select-field" id="daySelect"><option value="">All Days</option></select></div>
+          <div style="flex:1;min-width:200px;"><label class="form-label">Action</label><select class="select-field" id="actionSelect"><option value="">All Actions</option><option value="Login_Attempt">Login Attempt</option><option value="files_uploaded">Files Uploaded</option><option value="Site_Created">Site Created</option><option value="Site_Deleted">Site Deleted</option><option value="forgot-password">Forgot Password</option></select></div>
+        </div>
+        <div class="logs-table-container"><table class="logs-table" id="logsTable"><thead><tr><th>Timestamp</th><th>Action</th><th>Endpoint</th><th>Method</th><th>IP Address</th><th>Status</th><th>Details</th></tr></thead><tbody id="logsTableBody"></tbody></table></div>
+        <div id="logsEmpty" style="text-align:center;padding:40px;color:var(--text-secondary);display:none;"><i class="fas fa-clipboard-list" style="font-size:48px;margin-bottom:15px;opacity:0.3;"></i><p style="font-size:16px;margin:0;">No logs available for the selected period.</p></div>
+      </div>
+      <div class="card-footer" id="logsPagination" style="display:none;"><div class="pagination"><button class="pagination-btn" id="prevLogsPageBtn"><i class="fas fa-chevron-left"></i> Previous</button><span class="pagination-info" id="logsPaginationInfo"></span><button class="pagination-btn" id="nextLogsPageBtn">Next <i class="fas fa-chevron-right"></i></button></div></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="tab-content" id="settingsTab">
+    <div class="page-header"><h1 class="page-title">Settings</h1><p class="page-description">Manage your account settings and preferences</p></div>
+    <div class="user-profile-card"><div class="user-profile-avatar" id="userProfileAvatar">U</div><div class="user-profile-info"><h2 class="user-profile-name" id="userProfileName">User Name</h2><p class="user-profile-email" id="userProfileEmail">user@example.com</p><span class="user-profile-plan" id="userProfilePlan">Free Plan</span></div></div>
+    <div class="user-stats"><div class="user-stat"><div class="user-stat-value" id="userSiteCount">0</div><div class="user-stat-label">Active Sites</div></div><div class="user-stat"><div class="user-stat-value" id="userFileCount">0</div><div class="user-stat-label">Total Files</div></div><div class="user-stat"><div class="user-stat-value" id="userStorageUsed">0 MB</div><div class="user-stat-label">Storage Used</div></div><div class="user-stat"><div class="user-stat-value" id="userLastLogin">Never</div><div class="user-stat-label">Last Login</div></div></div>
+    <div class="card mt-3"><div class="card-header"><h3 class="card-title"><i class="fas fa-user"></i> Account Information</h3></div><div class="card-body"><div class="form-group"><label class="form-label">Email Address</label><input type="email" class="input-field" id="settingsEmail" value="user@example.com" readonly></div><div class="form-group"><label class="form-label">Site Name</label><input type="text" class="input-field" id="settingsSiteName" value="No site" readonly></div><div class="form-group"><label class="form-label">Account Plan</label><input type="text" class="input-field" id="settingsPlan" value="Free Plan" readonly></div><div class="form-group"><label class="form-label">Member Since</label><input type="text" class="input-field" id="settingsMemberSince" value="January 2023" readonly></div></div></div>
+    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-lock"></i> Security</h3></div><div class="card-body"><div class="form-group"><label class="form-label">SSL</label><button class="btn btn-secondary"><i class="fas fa-key"></i> Secure</button></div><div class="form-group"><label class="form-label">Two-Factor Authentication</label><button class="btn btn-secondary"><i class="fas fa-shield-alt"></i> Enabled 2FA</button></div></div></div>
+  </div>
+
+  <!-- HELP TAB -->
+  <div class="tab-content" id="helpTab">
+    <div class="page-header"><h1 class="page-title">Help Center</h1><p class="page-description">Get help and documentation</p></div>
+    <div class="card mb-3"><div class="card-header"><h3 class="card-title"><i class="fas fa-book"></i> Documentation</h3></div><div class="card-body"><div class="dashboard-stats"><div class="card" style="cursor:pointer;flex:1;"><div class="card-body"><h4 style="margin:0 0 8px;"><i class="fas fa-rocket" style="color:var(--primary);"></i> Getting Started</h4><p style="color:var(--text-secondary);margin:0;">Learn the basics of G Host</p></div></div><div class="card" style="cursor:pointer;flex:1;"><div class="card-body"><h4 style="margin:0 0 8px;"><i class="fas fa-code" style="color:var(--primary);"></i> API Reference</h4><p style="color:var(--text-secondary);margin:0;">Explore our API documentation</p></div></div><div class="card" style="cursor:pointer;flex:1;"><div class="card-body"><h4 style="margin:0 0 8px;"><i class="fas fa-question-circle" style="color:var(--primary);"></i> FAQs</h4><p style="color:var(--text-secondary);margin:0;">Find answers to common questions</p></div></div></div></div></div>
+    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-headset"></i> Contact Support</h3></div><div class="card-body"><form onsubmit="event.preventDefault();showToast('Message sent successfully','success')"><div class="form-group"><label class="form-label">Email Address</label><input type="email" class="input-field" placeholder="your@email.com" required></div><div class="form-group"><label class="form-label">Subject</label><input type="text" class="input-field" placeholder="How can we help?" required></div><div class="form-group"><label class="form-label">Message</label><textarea class="input-field" rows="4" placeholder="Describe your issue..." required></textarea></div><button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send Message</button></form></div></div>
+  </div>
+
+  <!-- ABOUT TAB -->
+  <div class="tab-content" id="aboutTab">
+    <div class="page-header"><h1 class="page-title">About G Host</h1><p class="page-description">Learn more about our platform</p></div>
+    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-info-circle"></i> About Us</h3></div><div class="card-body"><p style="font-size:16px;line-height:1.6;margin-bottom:20px;"><strong>G Host</strong> is a modern, student-friendly web hosting platform designed to simplify the process of deploying static websites. Our mission is to make web hosting accessible to everyone, especially students and developers who are just starting their journey.</p><h4 style="margin:24px 0 12px;color:var(--text-primary);">What We Offer</h4><ul style="line-height:1.8;"><li>💾 <strong>100 MB Free Storage</strong> - Perfect for learning projects and portfolios</li><li>🌐 <strong>Custom Subdomains</strong> - Get your own site.domain.com address</li><li>📁 <strong>File Management</strong> - Easy upload, delete, and organize your files</li><li>☁️ <strong>Instant Deployment</strong> - Your site goes live immediately after upload</li><li>🔒 <strong>Secure Hosting</strong> - HTTPS enabled for all sites</li></ul><h4 style="margin:24px 0 12px;color:var(--text-primary);">Perfect For</h4><ul style="line-height:1.8;"><li>🎓 Students learning web development</li><li>💼 Portfolio websites</li><li>📝 Personal blogs and projects</li><li>🚀 Testing and development</li></ul><div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius-md);margin-top:24px;"><h4 style="margin:0 0 8px;color:var(--text-primary);">Get Started Today</h4><p style="margin:0;color:var(--text-secondary);">Join thousands of students who trust G Host for their web hosting needs. No credit card required, no hidden fees.</p></div></div></div>
+  </div>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<div id="deleteModal" class="modal-overlay" style="display:none;"><div class="modal"><div class="modal-header"><h3 class="modal-title">Delete File</h3></div><div class="modal-body"><p>Are you sure you want to delete <strong id="deleteFileName"></strong>?</p><p style="color:var(--text-secondary);font-size:14px;margin-top:8px;">This action cannot be undone.</p></div><div class="modal-footer"><button class="btn btn-secondary" id="deleteCancel">Cancel</button><button class="btn btn-danger" id="deleteConfirm">Delete</button></div></div></div>
+
+<div id="siteExistsModal" class="modal-overlay" style="display:none;"><div class="modal"><div class="modal-header"><h3 class="modal-title">Site Already Exists</h3></div><div class="modal-body"><p>You already have a site. To create a new site, you must delete your current site first.</p><p style="color:var(--text-secondary);font-size:14px;margin-top:8px;">Each user can only have one site at a time.</p></div><div class="modal-footer"><button class="btn btn-primary" id="siteExistsOk">OK</button></div></div></div>
+
+<!-- Analytics Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+
+<script>
+// ===================== TOAST =====================
+const toast = document.getElementById("toast");
+function showToast(msg, type = "info") {
+  toast.innerHTML = type === "error" ? `<i class="fas fa-exclamation-circle"></i> ${msg}` : type === "success" ? `<i class="fas fa-check-circle"></i> ${msg}` : `<i class="fas fa-info-circle"></i> ${msg}`;
+  toast.className = "toast";
+  if (type === "error") toast.classList.add("error");
+  if (type === "success") toast.classList.add("success");
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3500);
+}
+
+// ===================== NAV DROPDOWN =====================
+const navUser = document.getElementById("navUser");
+const navDropdown = document.getElementById("navDropdown");
+navUser.addEventListener("click", (e) => { e.stopPropagation(); navDropdown.classList.toggle("active"); document.getElementById("notificationPopup").classList.remove("active"); });
+document.addEventListener("click", () => { navDropdown.classList.remove("active"); document.getElementById("notificationPopup").classList.remove("active"); });
+
+// ===================== NOTIFICATION POPUP =====================
+document.getElementById("notificationBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  navDropdown.classList.remove("active");
+  document.getElementById("notificationPopup").classList.toggle("active");
+});
+document.getElementById("notificationPopup").addEventListener("click", (e) => { e.stopPropagation(); });
+
+// ===================== LOGOUT =====================
+document.getElementById("logoutBtn").addEventListener("click", () => { showToast("Logging out...", "info"); setTimeout(() => window.location = "/logout", 1000); });
+
+// ===================== DARK MODE =====================
+const darkModeToggle = document.getElementById("darkModeToggle");
+const body = document.body;
+const currentTheme = localStorage.getItem("theme") || "light";
+if (currentTheme === "dark") { body.classList.add("dark-mode"); darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>'; }
+darkModeToggle.addEventListener("click", () => {
+  body.classList.toggle("dark-mode");
+  if (body.classList.contains("dark-mode")) { darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>'; localStorage.setItem("theme", "dark"); }
+  else { darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>'; localStorage.setItem("theme", "light"); }
+});
+
+// ===================== MOBILE MENU =====================
+const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+const sidebar = document.getElementById("sidebar");
+mobileMenuToggle.addEventListener("click", () => { sidebar.classList.toggle("active"); });
+window.addEventListener("click", (e) => {
+  if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target) && sidebar.classList.contains("active")) { sidebar.classList.remove("active"); }
+});
+
+// ===================== TAB NAVIGATION =====================
+document.querySelectorAll(".sidebar-item").forEach(item => {
+  item.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
+    item.classList.add("active");
+    const tabId = item.getAttribute("data-tab");
+    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+    const targetTab = document.getElementById(tabId + "Tab");
+    if (targetTab) targetTab.classList.add("active");
+    if (window.innerWidth <= 768) sidebar.classList.remove("active");
+    if (tabId === "files") setTimeout(loadAllFiles, 100);
+    if (tabId === "logs") setTimeout(() => { populateDateSelectors(); loadLogs(true); }, 100);
+    if (tabId === "sites") setTimeout(loadSites, 100);
+    if (tabId === "analytics") setTimeout(loadAnalytics, 100);
+  });
+});
+
+// ===================== SETTINGS NAV =====================
+document.getElementById("navSettings").addEventListener("click", (e) => {
+  e.preventDefault();
+  navDropdown.classList.remove("active");
+  document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
+  document.querySelector('[data-tab="settings"]').classList.add("active");
+  document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+  document.getElementById("settingsTab").classList.add("active");
+  loadDashboard();
+});
+
+// ===================== DATE FORMAT =====================
+function formatDateToIST(dateString) {
+  if (!dateString) return "Never";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Invalid Date";
+    return date.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
+  } catch (error) { return "Invalid Date"; }
+}
+
+// ===================== DASHBOARD =====================
+let currentPage = 1;
+const filesPerPage = 5;
+let allFiles = [];
+let hasSite = false;
+let userEmail = "user@example.com";
+
+async function loadDashboard() {
+  try {
+    const response = await fetch("/api/dashboard");
+    const data = await response.json();
+    const usedMb = data.usage.used_mb;
+    const totalMb = data.usage.total_mb;
+    const percentage = Math.round((usedMb / totalMb) * 100);
+    document.getElementById("storageValue").textContent = `${usedMb} MB / ${totalMb} MB`;
+    document.getElementById("storageBar").style.width = `${percentage}%`;
+    hasSite = !!data.site_name;
+    document.getElementById("sitesCount").textContent = hasSite ? "1" : "0";
+    document.getElementById("filesCount").textContent = data.uploaded_files ? data.uploaded_files.length : "0";
+    const createSiteAction = document.getElementById("createSiteAction");
+    if (hasSite) { createSiteAction.classList.add("disabled"); createSiteAction.onclick = () => { showSiteExistsModal(); }; }
+    else { createSiteAction.classList.remove("disabled"); createSiteAction.onclick = createSite; }
+    allFiles = data.uploaded_files || [];
+    displayRecentFiles();
+    updateUserProfile(data);
+  } catch (error) { showToast("Failed to load dashboard", "error"); }
+}
+
+function updateUserProfile(data) {
+  if (data.email) userEmail = data.email;
+  else userEmail = "user@example.com";
+  const emailParts = userEmail.split('@');
+  const username = emailParts[0];
+  const firstLetter = username.charAt(0).toUpperCase();
+  document.getElementById("navUserName").textContent = username;
+  document.getElementById("navUserAvatar").textContent = firstLetter;
+  document.getElementById("userProfileAvatar").textContent = firstLetter;
+  document.getElementById("userProfileName").textContent = username;
+  document.getElementById("userProfileEmail").textContent = userEmail;
+  document.getElementById("settingsEmail").value = userEmail;
+  document.getElementById("settingsSiteName").value = data.site_name || "No site";
+  document.getElementById("userSiteCount").textContent = hasSite ? "1" : "0";
+  document.getElementById("userFileCount").textContent = data.uploaded_files ? data.uploaded_files.length : "0";
+  document.getElementById("userStorageUsed").textContent = `${data.usage.used_mb} MB`;
+  const lastLoginElement = document.getElementById("userLastLogin");
+  const memberSinceElement = document.getElementById("settingsMemberSince");
+  if (data.last_login_at) {
+    const formattedLastLogin = formatDateToIST(data.last_login_at);
+    const MemberSince = formatDateToIST(data.MemberSince);
+    lastLoginElement.textContent = formattedLastLogin;
+    memberSinceElement.value = MemberSince;
+  } else { lastLoginElement.textContent = "Never"; memberSinceElement.value = "Unknown"; }
+}
+
+function displayRecentFiles() {
+  const container = document.getElementById("recentFiles");
+  const pagination = document.getElementById("filesPagination");
+  if (allFiles.length === 0) {
+    container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open empty-icon"></i><h3 class="empty-title">No files uploaded yet</h3><p class="empty-description">Upload your first file to get started</p></div>`;
+    pagination.style.display = "none"; return;
+  }
+  const totalPages = Math.ceil(allFiles.length / filesPerPage);
+  const currentFiles = allFiles.slice((currentPage - 1) * filesPerPage, currentPage * filesPerPage);
+  container.innerHTML = `<div class="file-list">${currentFiles.map(file => {
+    const name = typeof file === "string" ? file : file.filename || file.name || "unknown";
+    const size = file.size ? formatFileSize(file.size) : "";
+    const icon = name.endsWith('.html') ? 'fa-html5' : name.endsWith('.css') ? 'fa-css3-alt' : name.endsWith('.js') ? 'fa-js-square' : 'fa-file-code';
+    return `<div class="file-item"><div class="file-info"><div class="file-icon"><i class="fab ${icon}"></i></div><div class="file-details"><div class="file-name">${name}</div><div class="file-size">${size}</div></div></div><button class="btn btn-danger btn-sm" onclick="showDeleteModal('${name}')"><i class="fas fa-trash"></i></button></div>`;
+  }).join("")}</div>`;
+  if (totalPages > 1) {
+    pagination.style.display = "block";
+    document.getElementById("paginationInfo").textContent = `Page ${currentPage} of ${totalPages} (${allFiles.length} files)`;
+    document.getElementById("prevPageBtn").disabled = currentPage === 1;
+    document.getElementById("nextPageBtn").disabled = currentPage === totalPages;
+  } else { pagination.style.display = "none"; }
+}
+
+function formatFileSize(bytes) { if (bytes === 0) return '0 Bytes'; const k = 1024; const sizes = ['Bytes', 'KB', 'MB', 'GB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]; }
+
+document.getElementById("prevPageBtn").addEventListener("click", () => { if (currentPage > 1) { currentPage--; displayRecentFiles(); } });
+document.getElementById("nextPageBtn").addEventListener("click", () => { const tp = Math.ceil(allFiles.length / filesPerPage); if (currentPage < tp) { currentPage++; displayRecentFiles(); } });
+
+// ===================== UPLOAD =====================
+let selectedFiles = [];
+function validateFile(file) { const allowed = [".html", ".css", ".js", ".php", ".jpg", ".jpeg", ".png", ".gif"]; const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase(); if (!allowed.includes(ext)) { showToast("Invalid file type.", "error"); return false; } if (file.size > 5 * 1024 * 1024) { showToast("File size exceeds 5 MB limit", "error"); return false; } return true; }
+
+async function uploadFiles(files) {
+  for (const file of files) {
+    if (!validateFile(file)) continue;
+    const formData = new FormData(); formData.append("file", file);
+    try { const response = await fetch("/api/upload", { method: "POST", body: formData }); const data = await response.json(); if (response.ok && data.success) showToast(`Uploaded ${file.name}`, "success"); else showToast(data.message || "Upload failed", "error"); } catch (error) { showToast("Upload error", "error"); }
+  }
+  loadDashboard();
+}
+
+const uploadAction = document.getElementById("uploadAction"); const fileInput = document.getElementById("fileInput");
+uploadAction.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", (e) => { selectedFiles = Array.from(e.target.files); uploadFiles(selectedFiles); selectedFiles = []; fileInput.value = ""; });
+document.getElementById("createSiteBtn").addEventListener("click", () => { if (hasSite) { showSiteExistsModal(); return; } createSite(); });
+document.getElementById("fileManagerAction").addEventListener("click", () => { window.open("/filemanager", "_blank"); });
+
+// ===================== FILES TAB UPLOAD =====================
+const uploadZoneFiles = document.getElementById("uploadZoneFiles"); const fileInputFiles = document.getElementById("fileInputFiles"); const chooseFileBtn = document.getElementById("chooseFileBtn"); const uploadFileBtn = document.getElementById("uploadFileBtn"); const selectedFilesDiv = document.getElementById("selectedFiles");
+chooseFileBtn.addEventListener("click", (e) => { e.stopPropagation(); fileInputFiles.click(); });
+uploadZoneFiles.addEventListener("click", () => fileInputFiles.click());
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(en => uploadZoneFiles.addEventListener(en, e => { e.preventDefault(); e.stopPropagation(); }, false));
+['dragenter', 'dragover'].forEach(en => uploadZoneFiles.addEventListener(en, () => uploadZoneFiles.classList.add('dragover'), false));
+['dragleave', 'drop'].forEach(en => uploadZoneFiles.addEventListener(en, () => uploadZoneFiles.classList.remove('dragover'), false));
+uploadZoneFiles.addEventListener('drop', e => { selectedFiles = Array.from(e.dataTransfer.files); displaySelectedFiles(); }, false);
+fileInputFiles.addEventListener("change", e => { selectedFiles = Array.from(e.target.files); displaySelectedFiles(); });
+
+function displaySelectedFiles() {
+  selectedFilesDiv.innerHTML = '';
+  if (selectedFiles.length === 0) return;
+  const fileList = document.createElement('div'); fileList.className = 'file-list';
+  selectedFiles.forEach((file, index) => {
+    const fileItem = document.createElement('div'); fileItem.className = 'selected-file';
+    const fileInfo = document.createElement('div'); const fn = document.createElement('div'); fn.className = 'selected-file-name'; fn.textContent = file.name; const fs = document.createElement('div'); fs.className = 'selected-file-size'; fs.textContent = formatFileSize(file.size); fileInfo.appendChild(fn); fileInfo.appendChild(fs);
+    const removeBtn = document.createElement('button'); removeBtn.className = 'selected-file-remove'; removeBtn.innerHTML = '<i class="fas fa-times"></i>'; removeBtn.addEventListener('click', () => { selectedFiles.splice(index, 1); displaySelectedFiles(); });
+    fileItem.appendChild(fileInfo); fileItem.appendChild(removeBtn); fileList.appendChild(fileItem);
+  }); selectedFilesDiv.appendChild(fileList);
+}
+
+uploadFileBtn.addEventListener("click", () => { if (selectedFiles.length === 0) { showToast("No files selected", "error"); return; } uploadFiles(selectedFiles); selectedFiles = []; fileInputFiles.value = ""; selectedFilesDiv.innerHTML = ""; });
+
+// ===================== ALL FILES =====================
+async function loadAllFiles() { try { const response = await fetch("/api/dashboard"); const data = await response.json(); const c = document.getElementById("allFiles"); const p = document.getElementById("allFilesPagination"); if (!data.uploaded_files || data.uploaded_files.length === 0) { c.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open empty-icon"></i><h3 class="empty-title">No files uploaded yet</h3><p class="empty-description">Upload your first file to get started</p></div>`; p.style.display = "none"; return; } window.allFilesData = data.uploaded_files; window.currentAllFilesPage = 1; displayAllFilesPage(); } catch (error) { showToast("Failed to load files", "error"); } }
+
+function displayAllFilesPage() { const c = document.getElementById("allFiles"); const p = document.getElementById("allFilesPagination"); if (!window.allFilesData || window.allFilesData.length === 0) { c.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open empty-icon"></i><h3 class="empty-title">No files uploaded yet</h3></div>`; p.style.display = "none"; return; } const tp = Math.ceil(window.allFilesData.length / filesPerPage); const cf = window.allFilesData.slice((window.currentAllFilesPage - 1) * filesPerPage, window.currentAllFilesPage * filesPerPage); c.innerHTML = `<div class="file-list">${cf.map(file => { const name = typeof file === "string" ? file : file.filename || file.name || "unknown"; const size = file.size ? formatFileSize(file.size) : ""; const icon = name.endsWith('.html') ? 'fa-html5' : name.endsWith('.css') ? 'fa-css3-alt' : name.endsWith('.js') ? 'fa-js-square' : 'fa-file-code'; return `<div class="file-item"><div class="file-info"><div class="file-icon"><i class="fab ${icon}"></i></div><div class="file-details"><div class="file-name">${name}</div><div class="file-size">${size}</div></div></div><button class="btn btn-danger btn-sm" onclick="showDeleteModal('${name}')"><i class="fas fa-trash"></i></button></div>`; }).join("")}</div>`; if (tp > 1) { p.style.display = "flex"; document.getElementById("allFilesPaginationInfo").textContent = `Page ${window.currentAllFilesPage} of ${tp} (${window.allFilesData.length} files)`; document.getElementById("prevAllFilesBtn").disabled = window.currentAllFilesPage === 1; document.getElementById("nextAllFilesBtn").disabled = window.currentAllFilesPage === tp; } else p.style.display = "none"; }
+
+document.getElementById("prevAllFilesBtn").addEventListener("click", () => { if (window.currentAllFilesPage > 1) { window.currentAllFilesPage--; displayAllFilesPage(); } });
+document.getElementById("nextAllFilesBtn").addEventListener("click", () => { const tp = Math.ceil(window.allFilesData.length / filesPerPage); if (window.currentAllFilesPage < tp) { window.currentAllFilesPage++; displayAllFilesPage(); } });
+
+// ===================== DELETE MODAL =====================
+let fileToDelete = null;
+function showDeleteModal(filename) { fileToDelete = filename; document.getElementById("deleteFileName").textContent = filename; document.getElementById("deleteModal").style.display = "flex"; }
+document.getElementById("deleteCancel").addEventListener("click", () => { document.getElementById("deleteModal").style.display = "none"; fileToDelete = null; });
+document.getElementById("deleteConfirm").addEventListener("click", async () => { if (fileToDelete) { await deleteFile(fileToDelete); document.getElementById("deleteModal").style.display = "none"; fileToDelete = null; } });
+document.getElementById("deleteModal").addEventListener("click", e => { if (e.target.id === "deleteModal") { document.getElementById("deleteModal").style.display = "none"; fileToDelete = null; } });
+
+function showSiteExistsModal() { document.getElementById("siteExistsModal").style.display = "flex"; }
+document.getElementById("siteExistsOk").addEventListener("click", () => { document.getElementById("siteExistsModal").style.display = "none"; });
+document.getElementById("siteExistsModal").addEventListener("click", e => { if (e.target.id === "siteExistsModal") document.getElementById("siteExistsModal").style.display = "none"; });
+
+async function deleteFile(filename) { try { const response = await fetch("/api/delete-file", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filename }) }); const data = await response.json(); if (response.ok && data.success) { showToast("File deleted successfully", "success"); await loadDashboard(); if (document.getElementById("filesTab").classList.contains("active")) { if (window.allFilesData) { const tp = Math.ceil(window.allFilesData.length / filesPerPage); if (window.currentAllFilesPage > 1 && window.currentAllFilesPage === tp && (window.allFilesData.length - 1) <= (window.currentAllFilesPage - 1) * filesPerPage) window.currentAllFilesPage--; } await loadAllFiles(); } } else showToast(data.message || "Failed to delete file", "error"); } catch (error) { showToast("Error deleting file", "error"); } }
+
+// ===================== CREATE SITE =====================
+function createSite() { if (hasSite) { showSiteExistsModal(); return; } const modal = document.createElement("div"); modal.className = "modal-overlay"; modal.innerHTML = `<div class="modal"><div class="modal-header"><h3 class="modal-title">Create Your Site</h3></div><div class="modal-body"><div class="form-group"><label class="form-label">Site Name</label><input type="text" class="input-field" id="siteNameInput" placeholder="Enter your site name" autofocus><small style="color:var(--text-muted);font-size:12px;margin-top:4px;display:block;">Only lowercase letters, numbers, and hyphens allowed (3-32 chars)</small></div><div class="form-group"><label class="form-label">Preview</label><div style="padding:12px;background:var(--bg-secondary);border-radius:var(--radius-md);font-family:monospace;"><span id="subdomainPreview">yoursite</span>.g-host.store</div></div><div id="availabilityMsg" style="margin-top:8px;font-size:14px;"></div></div><div class="modal-footer"><button class="btn btn-secondary" id="promptCancel">Cancel</button><button class="btn btn-primary" id="promptSubmit" disabled>Create Site</button></div></div>`; document.body.appendChild(modal); const input = document.getElementById("siteNameInput"), preview = document.getElementById("subdomainPreview"), msg = document.getElementById("availabilityMsg"), createBtn = document.getElementById("promptSubmit"); let typingTimer; input.addEventListener("input", () => { clearTimeout(typingTimer); const value = input.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, ''); input.value = value; if (!value) { preview.textContent = "yoursite"; msg.textContent = ""; createBtn.disabled = true; return; } preview.textContent = value; msg.textContent = "Checking..."; msg.style.color = "var(--text-secondary)"; createBtn.disabled = true; typingTimer = setTimeout(async () => { if (!/^[a-z0-9]([a-z0-9-]{1,30})[a-z0-9]$/.test(value)) { msg.textContent = "❌ Invalid name format"; msg.style.color = "var(--error)"; createBtn.disabled = true; return; } try { const available = await checkSiteAvailability(value); if (available) { msg.textContent = "✅ Available"; msg.style.color = "var(--success)"; createBtn.disabled = false; } else { msg.textContent = "❌ Not available"; msg.style.color = "var(--error)"; createBtn.disabled = true; } } catch { msg.textContent = "⚠️ Error checking availability"; msg.style.color = "var(--warning)"; createBtn.disabled = true; } }, 600); }); document.getElementById("promptCancel").onclick = () => modal.remove(); createBtn.onclick = async () => { const name = input.value.trim(); if (!name) return; try { const r = await fetch("/api/site/add", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) }); const d = await r.json(); if (d.success) { showToast("Site created successfully!", "success"); modal.remove(); hasSite = true; await loadDashboard(); await loadSites(); } else showToast(d.message, "error"); } catch (error) { showToast("Error creating site", "error"); } }; input.addEventListener("keydown", e => { if (e.key === "Enter") createBtn.click(); }); modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); }); }
+
+async function checkSiteAvailability(name) { try { const res = await fetch("/api/check-site", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) }); const data = await res.json(); return data.available; } catch { return false; } }
+
+// ===================== LOAD SITES =====================
+async function loadSites() { try { const response = await fetch("/api/dashboard"); const data = await response.json(); const sitesList = document.getElementById("sitesList"); const createSiteBtn = document.getElementById("createSiteBtn"); hasSite = !!data.site_name; if (!hasSite) { sitesList.innerHTML = `<div class="empty-state"><i class="fas fa-globe empty-icon"></i><h3 class="empty-title">No Site Yet</h3><p class="empty-description">Create your first site to get started</p><button class="btn btn-primary" onclick="createSite()"><i class="fas fa-plus"></i> Create Site</button></div>`; createSiteBtn.disabled = false; } else { sitesList.innerHTML = `<div class="site-card"><div class="site-info"><div class="site-status"></div><div class="site-details"><h3 class="site-url"><a href="http://${data.site_name}.g-host.store" target="_blank">${data.site_name}.g-host.store</a></h3><p class="site-meta">Active • ${data.uploaded_files ? data.uploaded_files.length : 0} files</p></div></div><div class="site-actions"><a href="http://${data.site_name}.g-host.store" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Visit</a><button class="btn btn-danger btn-sm" onclick="deleteSite()"><i class="fas fa-trash"></i> Delete</button></div></div>`; createSiteBtn.disabled = true; } } catch (error) { showToast("Failed to load sites", "error"); } }
+
+async function deleteSite() { const confirmed = await showConfirmPopup("Are you sure you want to delete your site?"); if (!confirmed) return; try { const res = await fetch("/api/site/delete", { method: "POST" }); const r = await res.json(); if (r.success) { showToast("Site deleted successfully!", "success"); hasSite = false; await loadDashboard(); await loadSites(); } else showToast("Failed to delete site.", "error"); } catch (error) { showToast("Error deleting site", "error"); } }
+
+function showConfirmPopup(message) { return new Promise(resolve => { const overlay = document.createElement("div"); overlay.className = "modal-overlay"; overlay.innerHTML = `<div class="modal"><div class="modal-header"><h3 class="modal-title">Confirm Action</h3></div><div class="modal-body"><p>${message}</p></div><div class="modal-footer"><button class="btn btn-secondary" id="confirmNo">No</button><button class="btn btn-danger" id="confirmYes">Yes</button></div></div>`; document.body.appendChild(overlay); document.getElementById("confirmYes").onclick = () => { overlay.remove(); resolve(true); }; document.getElementById("confirmNo").onclick = () => { overlay.remove(); resolve(false); }; overlay.addEventListener("click", e => { if (e.target === overlay) { overlay.remove(); resolve(false); } }); }); }
+
+// ===================== LOGS =====================
+let currentLogsPage = 1; const logsPerPage = 10; let allLogs = []; let logSiteName = ''; let isFirstLoad = true;
+function getCurrentDate() { const now = new Date(); return { year: now.getFullYear(), month: (now.getMonth() + 1).toString().padStart(2, '0'), day: now.getDate().toString().padStart(2, '0'), fullDate: `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}` }; }
+
+async function loadLogs(forceCurrentDay = false) { try { const tableBody = document.getElementById("logsTableBody"); tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:24px;color:var(--primary);margin-bottom:10px;"></i><p style="color:var(--text-secondary);margin:0;">Loading logs...</p></td></tr>`; document.getElementById("logsEmpty").style.display = "none"; document.getElementById("logsPagination").style.display = "none"; if (!logSiteName) { const dr = await fetch("/api/dashboard"); const dd = await dr.json(); logSiteName = dd.site_name; } if (!logSiteName) { tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;"><i class="fas fa-exclamation-circle" style="font-size:32px;margin-bottom:10px;opacity:0.3;"></i><p style="font-size:16px;color:var(--text-secondary);">No site found. Please create a site first.</p></td></tr>`; return; } const monthSelect = document.getElementById("monthSelect"); const daySelect = document.getElementById("daySelect"); let selectedMonth = monthSelect.value, selectedDay = daySelect.value; if (isFirstLoad || forceCurrentDay) { const c = getCurrentDate(); selectedMonth = c.fullDate; selectedDay = c.day; monthSelect.value = selectedMonth; daySelect.value = selectedDay; isFirstLoad = false; } if (!selectedMonth) { const c = getCurrentDate(); selectedMonth = c.fullDate; monthSelect.value = selectedMonth; } let url = `/api/logs/${logSiteName}/${selectedMonth}`; const actionSelect = document.getElementById("actionSelect"); const selectedAction = actionSelect ? actionSelect.value : ""; const params = []; if (selectedDay) params.push(`day=${selectedDay}`); if (selectedAction) params.push(`action=${selectedAction}`); if (params.length > 0) url += `?${params.join("&")}`; const response = await fetch(url); const data = await response.json(); if (response.ok) { allLogs = data.logs || []; allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); currentLogsPage = 1; displayLogs(); } else throw new Error(data.message || "Failed to fetch logs"); } catch (error) { const tableBody = document.getElementById("logsTableBody"); tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;"><i class="fas fa-exclamation-triangle" style="font-size:32px;margin-bottom:10px;color:var(--error);"></i><p style="font-size:16px;color:var(--error);">Error: ${error.message}</p><button class="btn btn-primary" style="margin-top:15px;" onclick="loadLogs()"><i class="fas fa-redo"></i> Try Again</button></td></tr>`; } }
+
+function displayLogs() { const tableBody = document.getElementById("logsTableBody"); const logsEmpty = document.getElementById("logsEmpty"); const logsPagination = document.getElementById("logsPagination"); if (allLogs.length === 0) { tableBody.innerHTML = ""; logsEmpty.style.display = "block"; logsPagination.style.display = "none"; return; } logsEmpty.style.display = "none"; const tp = Math.ceil(allLogs.length / logsPerPage); const cl = allLogs.slice((currentLogsPage - 1) * logsPerPage, currentLogsPage * logsPerPage); tableBody.innerHTML = cl.map(log => { const ft = formatDateToIST(log.timestamp); let ac = "action-other", at = (log.action || "Unknown").replace(/-/g, " "); if (log.action === "files_uploaded") ac = "action-upload"; else if (log.action === "delete-file") ac = "action-delete"; let mc = "method-get"; if (log.method === "POST") mc = "method-post"; else if (log.method === "DELETE") mc = "method-delete"; let sc = "status-success", st = "Success"; if (log.details && !log.details.success) { sc = "status-failed"; st = "Failed"; } let dh = ""; if (log.details && log.details.files && log.details.files.length > 0) dh = `<div class="file-list">${log.details.files.map(f => `<span class="file-tag">${f}</span>`).join("")}</div>`; else if (log.details && log.details.message) dh = `<span style="color:var(--text-secondary);font-size:12px;">${log.details.message}</span>`; else dh = '<span style="color:var(--text-secondary);font-size:12px;">—</span>'; return `<tr><td class="timestamp">${ft}</td><td><span class="action-badge ${ac}">${at}</span></td><td>${log.endpoint || "N/A"}</td><td><span class="method-badge ${mc}">${log.method || "GET"}</span></td><td><span class="ip-address">${log.ip || "N/A"}</span></td><td class="${sc}">${st}</td><td class="details-cell">${dh}</td></tr>`; }).join(""); if (tp > 1) { logsPagination.style.display = "flex"; document.getElementById("logsPaginationInfo").textContent = `Page ${currentLogsPage} of ${tp} (${allLogs.length} logs)`; document.getElementById("prevLogsPageBtn").disabled = currentLogsPage === 1; document.getElementById("nextLogsPageBtn").disabled = currentLogsPage === tp; } else logsPagination.style.display = "none"; }
+
+function populateDateSelectors() { const monthSelect = document.getElementById("monthSelect"); const daySelect = document.getElementById("daySelect"); if (!monthSelect || !daySelect) return; const savedMonth = monthSelect.value, savedDay = daySelect.value; monthSelect.innerHTML = '<option value="">Select Month</option>'; daySelect.innerHTML = '<option value="">All Days</option>'; const now = new Date(), cY = now.getFullYear(), cM = now.getMonth() + 1, cD = now.getDate(); const cMV = `${cY}-${cM < 10 ? '0' + cM : cM}`; for (let i = 0; i < 12; i++) { const d = new Date(cY, cM - i - 1, 1); const v = `${d.getFullYear()}-${(d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1)}`; const o = document.createElement("option"); o.value = v; o.textContent = d.toLocaleDateString("en-US", { year: "numeric", month: "long" }); if (v === cMV || v === savedMonth) o.selected = true; monthSelect.appendChild(o); } const smv = monthSelect.value || cMV; const [yr, mn] = smv.split('-').map(Number); const dim = new Date(yr, mn, 0).getDate(); const icm = yr === cY && mn === cM; for (let i = 1; i <= (icm ? cD : dim); i++) { const o = document.createElement("option"); o.value = i; o.textContent = `Day ${i}`; if (icm && i === cD) o.selected = true; else if (savedDay && i.toString() === savedDay) o.selected = true; daySelect.appendChild(o); } monthSelect.addEventListener('change', function () { const [sy, sm] = this.value.split('-').map(Number); const isc = sy === cY && sm === cM; daySelect.innerHTML = '<option value="">All Days</option>'; for (let i = 1; i <= (isc ? cD : new Date(sy, sm, 0).getDate()); i++) { const o = document.createElement("option"); o.value = i; o.textContent = `Day ${i}`; if (isc && i === cD) o.selected = true; daySelect.appendChild(o); } currentLogsPage = 1; loadLogs(); }); daySelect.addEventListener("change", function () { currentLogsPage = 1; loadLogs(); }); const actionSelect = document.getElementById("actionSelect"); if (actionSelect) actionSelect.addEventListener("change", function () { currentLogsPage = 1; loadLogs(); }); document.getElementById("refreshLogs").addEventListener("click", function () { currentLogsPage = 1; loadLogs(); }); document.getElementById("prevLogsPageBtn").addEventListener("click", function () { if (currentLogsPage > 1) { currentLogsPage--; displayLogs(); } }); document.getElementById("nextLogsPageBtn").addEventListener("click", function () { if (currentLogsPage < Math.ceil(allLogs.length / logsPerPage)) { currentLogsPage++; displayLogs(); } }); }
+
+// ===================== ANALYTICS =====================
+let analyticsChartInstances = { traffic: null, browser: null, device: null };
+let analyticsMapInstance = null;
+const formatNum = (num) => { if (!num) return "0"; if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'; if (num >= 1000) return (num / 1000).toFixed(1) + 'K'; return num.toString(); };
+
+async function loadAnalytics() {
+  const analyticsContent = document.getElementById("analyticsContent");
+  analyticsContent.innerHTML = `<div style="height:300px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);"><div style="text-align:center;"><i class="fas fa-spinner fa-spin" style="font-size:32px;margin-bottom:10px;"></i><p>Loading analytics...</p></div></div>`;
+  try {
+    const response = await fetch("/api/analytics");
+    const result = await response.json();
+    let data;
+    if (result.success && result.analytics) data = result.analytics;
+    else if (result.success && result.data) data = result.data;
+    else if (result.total_views !== undefined) data = result;
+    else if (!result.success && result.message) throw new Error(result.message);
+    else data = result;
+    renderAnalyticsDashboard(data);
+  } catch (error) {
+    analyticsContent.innerHTML = `<div style="height:300px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);"><div style="text-align:center;"><i class="fas fa-exclamation-triangle" style="font-size:48px;margin-bottom:16px;opacity:0.3;"></i><p>Error loading analytics: ${error.message}</p><button class="btn btn-primary" onclick="loadAnalytics()" style="margin-top:15px;"><i class="fas fa-redo"></i> Retry</button></div></div>`;
+  }
+}
+
+function renderAnalyticsDashboard(data) {
+  const analyticsContent = document.getElementById("analyticsContent");
+  const todayViews = Object.values(data.daily_views || {}).pop() || 0;
+
+  analyticsContent.innerHTML = `
+    <div class="analytics-container">
+      <div class="analytics-row">
+        <div class="analytics-card"><div class="analytics-stat"><div class="analytics-icon views"><i class="fas fa-eye"></i></div><div class="analytics-content"><div class="analytics-value">${formatNum(data.total_views)}</div><div class="analytics-label">Total Views</div></div></div></div>
+        <div class="analytics-card"><div class="analytics-stat"><div class="analytics-icon unique"><i class="fas fa-users"></i></div><div class="analytics-content"><div class="analytics-value">${formatNum(data.unique_visitors)}</div><div class="analytics-label">Unique Visitors</div></div></div></div>
+        <div class="analytics-card"><div class="analytics-stat"><div class="analytics-icon pages"><i class="fas fa-file-alt"></i></div><div class="analytics-content"><div class="analytics-value">${Object.keys(data.pages || {}).length}</div><div class="analytics-label">Total Pages</div></div></div></div>
+        <div class="analytics-card"><div class="analytics-stat"><div class="analytics-icon today"><i class="fas fa-calendar-day"></i></div><div class="analytics-content"><div class="analytics-value">${formatNum(todayViews)}</div><div class="analytics-label">Today's Views</div></div></div></div>
+      </div>
+      <div class="analytics-row">
+        <div class="analytics-card" style="flex:2;"><h4 class="card-title"><i class="fas fa-chart-line"></i> Traffic Overview</h4><div class="chart-container"><canvas id="trafficChart"></canvas></div></div>
+        <div class="analytics-card" style="flex:1;"><h4 class="card-title"><i class="fas fa-star"></i> Top Pages</h4><div class="analytics-scroll" style="max-height:280px;overflow-y:auto;"><table class="analytics-table"><thead><tr><th>Page</th><th class="text-end">Views</th></tr></thead><tbody id="topPagesTableBody"></tbody></table></div></div>
+      </div>
+      <div class="analytics-row">
+        <div class="analytics-card" style="flex:2;"><h4 class="card-title"><i class="fas fa-globe"></i> Geographic Traffic</h4><div class="analytics-geo-wrap" style="display:flex;gap:20px;"><div style="flex:2;"><div id="mapContainer" style="height:300px;"></div></div><div style="flex:1;"><div class="analytics-scroll" style="max-height:300px;overflow-y:auto;"><table class="analytics-table"><thead><tr><th>Country</th><th class="text-end">Visits</th></tr></thead><tbody id="countriesTableBody"></tbody></table></div></div></div></div>
+        <div class="analytics-card" style="flex:1;"><h4 class="card-title"><i class="fas fa-chart-pie"></i> Browser & Devices</h4><div style="display:flex;flex-direction:column;gap:20px;"><div><h5 style="font-size:14px;margin-bottom:10px;">Browser Usage</h5><div class="doughnut-container"><canvas id="browserChart"></canvas></div></div><div><h5 style="font-size:14px;margin-bottom:10px;">Device Analytics</h5><div class="doughnut-container"><canvas id="deviceChart"></canvas></div></div></div></div>
+      </div>
+    </div>`;
+
+  setTimeout(() => renderCharts(data), 100);
+}
+
+function renderCharts(data) {
+  // Destroy old instances
+  if (analyticsChartInstances.traffic) { analyticsChartInstances.traffic.destroy(); analyticsChartInstances.traffic = null; }
+  if (analyticsChartInstances.browser) { analyticsChartInstances.browser.destroy(); analyticsChartInstances.browser = null; }
+  if (analyticsChartInstances.device) { analyticsChartInstances.device.destroy(); analyticsChartInstances.device = null; }
+  if (analyticsMapInstance) { try { analyticsMapInstance.destroy(); } catch (e) {} analyticsMapInstance = null; }
+
+  const isDark = body.classList.contains('dark-mode');
+  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  const tickColor = isDark ? '#8B949E' : '#8993A4';
+  const cardBg = isDark ? '#161B22' : '#FFFFFF';
+
+  // TRAFFIC CHART with animation
+  const ctxTraffic = document.getElementById('trafficChart').getContext('2d');
+  const gradient = ctxTraffic.createLinearGradient(0, 0, 0, 300);
+  gradient.addColorStop(0, 'rgba(243,128,32,0.4)');
+  gradient.addColorStop(1, 'rgba(243,128,32,0)');
+
+  analyticsChartInstances.traffic = new Chart(ctxTraffic, {
+    type: 'line',
+    data: {
+      labels: Object.keys(data.daily_views || {}).map(d => d.slice(-5)),
+      datasets: [{ label: 'Daily Views', data: Object.values(data.daily_views || {}), borderColor: '#F38020', backgroundColor: gradient, borderWidth: 2, pointBackgroundColor: cardBg, pointBorderColor: '#F38020', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1200, easing: 'easeOutQuart' },
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: isDark ? '#21262D' : '#172B4D', titleColor: '#fff', bodyColor: '#fff' } },
+      scales: { x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } }, y: { grid: { color: gridColor }, border: { dash: [4, 4] }, ticks: { color: tickColor, font: { size: 11 } } } }
+    }
+  });
+
+  // TOP PAGES
+  const topPagesBody = document.getElementById("topPagesTableBody");
+  Object.entries(data.pages || {}).forEach(([url, info]) => { topPagesBody.innerHTML += `<tr><td>${url}</td><td class="text-end">${formatNum(info.views)}</td></tr>`; });
+
+  // COUNTRIES TABLE
+  const countriesBody = document.getElementById("countriesTableBody");
+  Object.entries(data.countries || {}).forEach(([country, visits]) => { countriesBody.innerHTML += `<tr><td>${country}</td><td class="text-end">${formatNum(visits)}</td></tr>`; });
+
+  // BROWSER CHART with animation
+  analyticsChartInstances.browser = new Chart(document.getElementById('browserChart'), {
+    type: 'doughnut',
+    data: { labels: Object.keys(data.browsers || {}), datasets: [{ data: Object.values(data.browsers || {}), backgroundColor: ['#F38020', '#6366f1', '#4ade80', '#ec4899', '#facc15'], borderWidth: 2, borderColor: cardBg }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', animation: { animateRotate: true, animateScale: true, duration: 1000, easing: 'easeOutQuart' }, plugins: { legend: { position: 'right', labels: { color: tickColor, boxWidth: 10, font: { size: 11 }, padding: 8 } } } }
+  });
+
+  // DEVICE CHART with animation
+  analyticsChartInstances.device = new Chart(document.getElementById('deviceChart'), {
+    type: 'doughnut',
+    data: { labels: Object.keys(data.devices || {}), datasets: [{ data: Object.values(data.devices || {}), backgroundColor: ['#6366f1', '#F38020', '#8993A4'], borderWidth: 2, borderColor: cardBg }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', animation: { animateRotate: true, animateScale: true, duration: 1000, easing: 'easeOutQuart' }, plugins: { legend: { position: 'right', labels: { color: tickColor, boxWidth: 10, font: { size: 11 }, padding: 8 } } } }
+  });
+
+  // GEO MAP
+  const countryCodes = { "India": "IN", "United States": "US", "Canada": "CA", "Germany": "DE", "United Kingdom": "GB", "Australia": "AU", "France": "FR", "Japan": "JP", "Brazil": "BR", "China": "CN", "Russia": "RU", "South Korea": "KR", "Italy": "IT", "Spain": "ES", "Mexico": "MX", "Indonesia": "ID", "Netherlands": "NL", "Sweden": "SE", "Poland": "PL", "Turkey": "TR", "Saudi Arabia": "SA", "Switzerland": "CH", "Norway": "NO", "Belgium": "BE", "Argentina": "AR", "Thailand": "TH", "Singapore": "SG", "South Africa": "ZA", "Philippines": "PH", "Egypt": "EG", "Malaysia": "MY", "Nigeria": "NG", "Vietnam": "VN", "Pakistan": "PK", "Bangladesh": "BD" };
+  const mapData = {};
+  Object.keys(data.countries || {}).forEach(key => { if (countryCodes[key]) mapData[countryCodes[key]] = data.countries[key]; });
+
+  analyticsMapInstance = new jsVectorMap({
+    selector: "#mapContainer", map: "world", backgroundColor: "transparent", zoomOnScroll: false,
+    regionStyle: { initial: { fill: isDark ? "#374151" : "#D1D5DB" }, hover: { fill: "#F38020" } },
+    visualizeData: { scale: [isDark ? "#1e293b" : "#E5E7EB", "#F38020"], values: mapData }
+  });
+}
+
+// ===================== INIT =====================
+window.addEventListener("DOMContentLoaded", () => {
+  loadDashboard();
+  if (window.innerWidth <= 768) { document.getElementById("mobileMenuToggle").style.display = "flex"; }
+  window.addEventListener("resize", () => {
+    if (window.innerWidth <= 768) { document.getElementById("mobileMenuToggle").style.display = "flex"; }
+    else { document.getElementById("mobileMenuToggle").style.display = "none"; sidebar.classList.remove("active"); }
+  });
+});
+</script>
+</body>
+</html>

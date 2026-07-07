@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --bg-tertiary: #2d2d30;
+            --bg-editor: #1e1e1e;
+            --text-primary: #cccccc;
+            --text-secondary: #969696;
+            --text-tertiary: #6c6c6c;
+            --accent: #F38020;
+            --accent-hover: #1a85ff;
+            --border: #3e3e42;
+            --selection: #264f78;
+            --hover: #2a2d2e;
+            --success: #4ec9b0;
+            --warning: #ce9178;
+            --error: #f48771;
+            --sidebar-width: 280px;
+            --header-height: 35px;
+            --branding-height: 30px;
+            --mobile-breakpoint: 768px;
+            --status-bar-height: 22px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Ubuntu', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Branding Header --- */
+        .branding-header {
+            height: var(--branding-height);
+            background: linear-gradient(90deg, #F38020 0%, #d9a070 100%);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 100;
+        }
+
+        .branding-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .branding-header .logo i {
+            font-size: 18px;
+        }
+
+        .branding-header .version {
+            margin-left: auto;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* --- Mobile Menu Toggle --- */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        /* --- Header --- */
+        .header {
+            height: var(--header-height);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 8px;
+            flex-shrink: 0;
+            overflow-x: auto;
+            position: relative;
+            z-index: 90;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .header-btn:hover {
+            background-color: var(--hover);
+        }
+
+        .header-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .header-btn i {
+            font-size: 14px;
+        }
+
+        .header-btn span {
+            display: inline;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 20px;
+            background-color: var(--border);
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+
+        .file-path {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .file-path i {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            height: calc(100vh - var(--branding-height) - var(--header-height) - var(--status-bar-height));
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: absolute;
+            height: 100%;
+            z-index: 80;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            height: 35px;
+            background-color: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .sidebar-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 3px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-action-btn:hover {
+            color: var(--text-primary);
+            background-color: var(--hover);
+        }
+
+        /* --- Path Navigation --- */
+        .path-navigation {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border);
+            background-color: var(--bg-tertiary);
+            padding: 8px 10px;
+        }
+
+        .path-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 3px;
+            margin-right: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover:not(:disabled) {
+            background-color: var(--hover);
+        }
+
+        .back-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .current-path {
+            flex: 1;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .path-breadcrumb {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 5px;
+        }
+
+        .breadcrumb-item {
+            cursor: pointer;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--text-primary);
+        }
+
+        .breadcrumb-separator {
+            margin: 0 5px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px 0;
+        }
+
+        /* --- File List Items --- */
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .file-item:hover {
+            background-color: var(--hover);
+        }
+
+        .file-item.selected {
+            background-color: var(--selection);
+        }
+
+        .file-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .file-icon.folder {
+            color: #dcb67a;
+        }
+
+        .file-icon.file {
+            color: var(--text-secondary);
+        }
+
+        /* Enhanced file type icons */
+        .file-icon.html { color: #e34c26; }
+        .file-icon.css { color: #1572b6; }
+        .file-icon.js { color: #f7df1e; }
+        .file-icon.ts { color: #3178c6; }
+        .file-icon.jsx { color: #61dafb; }
+        .file-icon.tsx { color: #3178c6; }
+        .file-icon.py { color: #3776ab; }
+        .file-icon.java { color: #f89820; }
+        .file-icon.c { color: #555555; }
+        .file-icon.cpp { color: #00599c; }
+        .file-icon.cs { color: #239120; }
+        .file-icon.php { color: #777bb4; }
+        .file-icon.rb { color: #cc342d; }
+        .file-icon.go { color: #00add8; }
+        .file-icon.rs { color: #dea584; }
+        .file-icon.swift { color: #fa7343; }
+        .file-icon.kt { color: #7f52ff; }
+        .file-icon.json { color: #5a9fd4; }
+        .file-icon.xml { color: #ff6600; }
+        .file-icon.yml { color: #cb171e; }
+        .file-icon.yaml { color: #cb171e; }
+        .file-icon.md { color: #42a5f5; }
+        .file-icon.txt { color: #86c691; }
+        .file-icon.pdf { color: #ff4d4d; }
+        .file-icon.doc { color: #2b579a; }
+        .file-icon.docx { color: #2b579a; }
+        .file-icon.xls { color: #217346; }
+        .file-icon.xlsx { color: #217346; }
+        .file-icon.ppt { color: #d24726; }
+        .file-icon.pptx { color: #d24726; }
+        .file-icon.zip { color: #ffc107; }
+        .file-icon.rar { color: #ffc107; }
+        .file-icon.tar { color: #ffc107; }
+        .file-icon.gz { color: #ffc107; }
+        .file-icon.jpg { color: #4caf50; }
+        .file-icon.jpeg { color: #4caf50; }
+        .file-icon.png { color: #4caf50; }
+        .file-icon.gif { color: #4caf50; }
+        .file-icon.svg { color: #ffb74d; }
+        .file-icon.ico { color: #ffb74d; }
+        .file-icon.mp3 { color: #f44336; }
+        .file-icon.mp4 { color: #f44336; }
+        .file-icon.avi { color: #f44336; }
+        .file-icon.mov { color: #f44336; }
+        .file-icon.sql { color: #336791; }
+        .file-icon.sh { color: #4eaa25; }
+        .file-icon.bat { color: #4eaa25; }
+        .file-icon.ps1 { color: #3945a3; }
+        .file-icon.dockerfile { color: #2496ed; }
+        .file-icon.gitignore { color: #f05032; }
+        .file-icon.env { color: #f7df1e; }
+        .file-icon.lock { color: #9e9e9e; }
+
+        .file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-left: 8px;
+        }
+
+        .file-list-loading {
+            padding: 15px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .file-list-loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-folder {
+            padding: 15px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        /* --- Editor Container --- */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-editor);
+            overflow: hidden;
+            position: relative;
+            margin-left: var(--sidebar-width);
+        }
+
+        .editor-tabs {
+            height: 35px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            flex-shrink: 0;
+            scrollbar-width: thin;
+        }
+
+        .editor-tab {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            background-color: var(--bg-tertiary);
+            border-right: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 13px;
+            gap: 5px;
+            min-width: 100px;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .editor-tab.active {
+            background-color: var(--bg-editor);
+            color: var(--text-primary);
+        }
+
+        .editor-tab:hover:not(.active) {
+            background-color: var(--hover);
+        }
+
+        .editor-tab-close {
+            margin-left: 5px;
+            padding: 2px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .editor-tab-close:hover {
+            background-color: var(--hover);
+        }
+
+        .editor-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--bg-editor);
+        }
+
+        .editor-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .editor-wrapper.active {
+            display: block;
+        }
+
+        .CodeMirror {
+            height: 100%;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        .image-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-tertiary);
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .image-message i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            color: var(--text-secondary);
+        }
+
+        .image-message h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .image-message p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 500px;
+        }
+
+        /* --- Context Menu --- */
+        .context-menu {
+            position: absolute;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            min-width: 180px;
+            padding: 4px 0;
+        }
+
+        .context-menu-item {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background-color: var(--hover);
+        }
+
+        .context-menu-item i {
+            width: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background-color: var(--border);
+            margin: 4px 0;
+        }
+
+        /* --- Input Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+            background-color: var(--hover);
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .modal-footer {
+            padding: 12px 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--hover);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        /* --- Status Bar --- */
+        .status-bar {
+            height: var(--status-bar-height);
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 12px;
+            color: white;
+            flex-shrink: 0;
+            overflow-x: auto;
+            position: relative;
+            z-index: 60;
+        }
+
+        .status-item {
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        /* --- Toast Notifications --- */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: calc(100% - 40px);
+        }
+
+        .toast {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 250px;
+            max-width: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast.hiding {
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .toast-icon {
+            font-size: 16px;
+        }
+
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--error);
+        }
+
+        .toast.info .toast-icon {
+            color: var(--accent);
+        }
+
+        .toast-content {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px;
+        }
+
+        .toast-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* --- Mobile Overlay --- */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 70;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            /* Mobile menu toggle */
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            /* Hide text on header buttons on mobile */
+            .header-btn span {
+                display: none;
+            }
+
+            .header-btn {
+                padding: 5px;
+            }
+
+            /* Sidebar adjustments */
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            /* Editor container adjustments */
+            .editor-container {
+                margin-left: 0;
+            }
+
+            /* File item adjustments for touch */
+            .file-item {
+                padding: 12px;
+            }
+
+            .file-icon {
+                font-size: 20px;
+                width: 28px;
+            }
+
+            .file-name {
+                font-size: 16px;
+            }
+
+            /* Modal adjustments */
+            .modal-overlay {
+                padding: 10px;
+            }
+
+            /* Context menu adjustments */
+            .context-menu {
+                min-width: 150px;
+                max-width: 80%;
+                left: 10px !important;
+                right: 10px;
+            }
+
+            .context-menu-item {
+                padding: 12px;
+            }
+
+            /* Toast adjustments */
+            .toast-container {
+                bottom: 40px; /* Adjusted to account for status bar */
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast {
+                min-width: auto;
+            }
+
+            /* Status bar adjustments - ENSURE IT'S VISIBLE */
+            .status-bar {
+                font-size: 10px;
+                padding: 0 5px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 60;
+            }
+
+            .status-item {
+                margin-right: 5px;
+            }
+
+            /* Mobile overlay */
+            .mobile-overlay.show {
+                display: block;
+            }
+
+            /* Editor tab adjustments */
+            .editor-tab {
+                min-width: 80px;
+                padding: 0 8px;
+            }
+
+            /* Path breadcrumb adjustments */
+            .path-breadcrumb {
+                font-size: 10px;
+            }
+
+            /* Main container height adjustment for mobile */
+            .main-container {
+                height: calc(100vh - var(--branding-height) - var(--header-height) - var(--status-bar-height));
+            }
+        }
+
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            /* Header adjustments */
+            .branding-header {
+                padding: 0 10px;
+            }
+
+            .branding-header .version {
+                display: none;
+            }
+
+            /* Sidebar adjustments */
+            .sidebar {
+                width: 85%;
+                max-width: 280px;
+            }
+
+            /* File item adjustments */
+            .file-item {
+                padding: 14px;
+            }
+
+            .file-name {
+                font-size: 18px;
+            }
+
+            .file-size {
+                display: none;
+            }
+
+            /* Modal adjustments */
+            .modal {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 0;
+            }
+
+            /* Context menu adjustments */
+            .context-menu {
+                left: 5px !important;
+                right: 5px;
+                min-width: auto;
+            }
+
+            /* Toast adjustments */
+            .toast {
+                padding: 10px;
+            }
+
+            /* Editor tab adjustments */
+            .editor-tab {
+                min-width: 60px;
+                padding: 0 5px;
+            }
+
+            .editor-tab-close {
+                margin-left: 2px;
+            }
+
+            /* Path navigation adjustments */
+            .path-navigation {
+                padding: 10px;
+            }
+
+            .current-path {
+                font-size: 14px;
+            }
+
+            /* Status bar adjustments for small mobile */
+            .status-bar {
+                font-size: 9px;
+                padding: 0 3px;
+            }
+
+            .status-item {
+                margin-right: 3px;
+            }
+        }
+
+        /* Custom scrollbar for sidebar */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #3e3e42 transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #3e3e42;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #5e5e62;
+        }
+
+        /* Custom scrollbar for file list */
+        .file-list {
+            scrollbar-width: thin;
+            scrollbar-color: #3e3e42 transparent;
+        }
+
+        .file-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .file-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .file-list::-webkit-scrollbar-thumb {
+            background: #3e3e42;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+
+        .file-list::-webkit-scrollbar-thumb:hover {
+            background: #5e5e62;
+        }
+
+        /* Custom scrollbar for editor tabs */
+        .editor-tabs {
+            scrollbar-width: thin;
+            scrollbar-color: #3e3e42 transparent;
+        }
+
+        .editor-tabs::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .editor-tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .editor-tabs::-webkit-scrollbar-thumb {
+            background: #3e3e42;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+
+        .editor-tabs::-webkit-scrollbar-thumb:hover {
+            background: #5e5e62;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Branding Header -->
+    <div class="branding-header">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="logo">
+            <i class="fa-solid fa-folder-closed"></i>
+            <span>File Manager</span>
+        </div>
+        <div class="version">v1.0.0</div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <button class="header-btn" id="saveBtn" onclick="saveFile()" disabled title="Save">
+            <i class="fa-solid fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button class="header-btn" id="undoBtn" onclick="undo()" disabled title="Undo">
+            <i class="fa-solid fa-undo"></i>
+            <span>Undo</span>
+        </button>
+        <button class="header-btn" id="redoBtn" onclick="redo()" disabled title="Redo">
+            <i class="fa-solid fa-redo"></i>
+            <span>Redo</span>
+        </button>
+        
+        <div class="header-divider"></div>
+        
+        <button class="header-btn" onclick="downloadSelectedItem()" id="downloadBtn" disabled title="Download">
+            <i class="fa-solid fa-download"></i>
+            <span>Download</span>
+        </button>
+        <button class="header-btn" onclick="promptRename()" id="renameBtn" disabled title="Rename">
+            <i class="fa-solid fa-pen"></i>
+            <span>Rename</span>
+        </button>
+        <button class="header-btn" onclick="deleteItem()" id="deleteBtn" disabled title="Delete">
+            <i class="fa-solid fa-trash"></i>
+            <span>Delete</span>
+        </button>
+        
+        <div class="file-path" id="filePath" style="display: none;">
+            <i class="fa-solid fa-file"></i>
+            <span>No file opened</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span>Explorer</span>
+                <div class="sidebar-actions">
+                    <button class="sidebar-action-btn" onclick="createFile()" title="New File">
+                        <i class="fa-solid fa-file-plus"></i>
+                    </button>
+                    <button class="sidebar-action-btn" onclick="createFolder()" title="New Folder">
+                        <i class="fa-solid fa-folder-plus"></i>
+                    </button>
+                    <button class="sidebar-action-btn" onclick="refreshCurrentFolder()" title="Refresh">
+                        <i class="fa-solid fa-refresh"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Path Navigation -->
+            <div class="path-navigation">
+                <div class="path-bar">
+                    <button class="back-btn" id="backBtn" onclick="navigateToParent()" disabled title="Go to parent folder">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div class="current-path" id="currentPath">/</div>
+                </div>
+                <div class="path-breadcrumb" id="pathBreadcrumb">
+                    <span class="breadcrumb-item" onclick="navigateToPath('')">Root</span>
+                </div>
+            </div>
+            
+            <!-- File List -->
+            <div class="file-list" id="fileList">
+                <div class="file-list-loading">
+                    <i class="fa-solid fa-spinner"></i>
+                    <span>Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="editor-container">
+            <div class="editor-tabs" id="editorTabs">
+                <!-- Editor tabs will be generated here -->
+            </div>
+            <div class="editor-content" id="editorContent">
+                <div class="empty-state">
+                    <i class="fa-solid fa-file-code"></i>
+                    <p>No file opened</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <i class="fa-solid fa-terminal"></i>
+            <span>File Manager | G Host - Successfully Connected to Backend</span>
+        </div>
+        <div class="status-item" style="margin-left: auto;">
+            <span id="statusText">Ready</span>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <!-- New items section -->
+        <div class="context-menu-item" onclick="createNewFile()" id="newFileItem">
+            <i class="fa-solid fa-file"></i>
+            <span>New File</span>
+        </div>
+        <div class="context-menu-item" onclick="createNewFolder()" id="newFolderItem">
+            <i class="fa-solid fa-folder"></i>
+            <span>New Folder</span>
+        </div>
+        <div class="context-menu-separator"></div>
+        <!-- File operations -->
+        <div class="context-menu-item" onclick="openFile()">
+            <i class="fa-solid fa-folder-open"></i>
+            <span>Open</span>
+        </div>
+        <div class="context-menu-item" onclick="viewContextImage()" id="contextViewImage" style="display: none;">
+            <i class="fa-solid fa-image"></i>
+            <span>View Image</span>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" onclick="downloadContextItem()" id="contextDownloadItem">
+            <i class="fa-solid fa-download"></i>
+            <span>Download</span>
+        </div>
+        <div class="context-menu-item" onclick="promptRenameFromContext()">
+            <i class="fa-solid fa-pen"></i>
+            <span>Rename</span>
+        </div>
+        <div class="context-menu-item" onclick="deleteItem()">
+            <i class="fa-solid fa-trash"></i>
+            <span>Delete</span>
+        </div>
+    </div>
+
+    <!-- Input Modal -->
+    <div class="modal-overlay" id="inputModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Enter Name</h3>
+                <button class="modal-close" onclick="closeModal('inputModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalInput" class="modal-input" placeholder="Enter name...">
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('inputModal')">Cancel</button>
+                <button class="btn btn-primary" id="modalConfirmBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmModalTitle">Confirm</h3>
+                <button class="modal-close" onclick="closeModal('confirmModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="btn btn-primary" id="confirmModalBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+
+    <script>
+        // Application state
+        let currentFile = null;
+        let selectedFile = null;
+        let contextFile = null; // Track context menu file/folder separately
+        let openTabs = [];
+        let activeTab = null;
+        let editors = {};
+        let modalCallback = null;
+        let confirmCallback = null;
+        let currentPath = '';
+        let folderContents = [];
+        let sidebarOpen = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFolderContents('');
+            setupEventListeners();
+            setupMobileEventListeners();
+        });
+
+        // Setup mobile event listeners
+        function setupMobileEventListeners() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebarOpen = !sidebarOpen;
+                sidebar.classList.toggle('open');
+                mobileOverlay.classList.toggle('show');
+            });
+
+            mobileOverlay.addEventListener('click', function() {
+                sidebarOpen = false;
+                sidebar.classList.remove('open');
+                mobileOverlay.classList.remove('show');
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebarOpen) {
+                    sidebarOpen = false;
+                    sidebar.classList.remove('open');
+                    mobileOverlay.classList.remove('show');
+                }
+            });
+
+            // Handle orientation change
+            window.addEventListener('orientationchange', function() {
+                if (window.innerWidth > 768 && sidebarOpen) {
+                    sidebarOpen = false;
+                    sidebar.classList.remove('open');
+                    mobileOverlay.classList.remove('show');
+                }
+            });
+        }
+
+        // Get file icon based on extension with enhanced support
+        function getFileIcon(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            const name = fileName.toLowerCase();
+            
+            // Special case for specific file names
+            if (name === 'dockerfile') return 'fa-brands fa-docker dockerfile';
+            if (name === '.gitignore') return 'fa-brands fa-git-alt gitignore';
+            if (name.endsWith('.env')) return 'fa-solid fa-file-lines env';
+            if (name === 'package-lock.json' || name.endsWith('.lock')) return 'fa-solid fa-lock lock';
+            
+            // Extended file type mapping
+            const iconMap = {
+                // Web technologies
+                'html': 'fa-brands fa-html5 html',
+                'htm': 'fa-brands fa-html5 html',
+                'css': 'fa-brands fa-css3-alt css',
+                'scss': 'fa-brands fa-sass css',
+                'sass': 'fa-brands fa-sass css',
+                'less': 'fa-brands fa-less css',
+                'js': 'fa-brands fa-square-js js',
+                'jsx': 'fa-brands fa-react jsx',
+                'ts': 'fa-brands fa-typescript ts',
+                'tsx': 'fa-brands fa-react tsx',
+                'json': 'fa-solid fa-file-code json',
+                'xml': 'fa-solid fa-file-code xml',
+                'yaml': 'fa-solid fa-file-code yaml',
+                'yml': 'fa-solid fa-file-code yml',
+                
+                // Programming languages
+                'py': 'fa-brands fa-python py',
+                'java': 'fa-brands fa-java java',
+                'c': 'fa-solid fa-file-code c',
+                'cpp': 'fa-solid fa-file-code cpp',
+                'cs': 'fa-solid fa-file-code cs',
+                'php': 'fa-brands fa-php php',
+                'rb': 'fa-solid fa-file-code rb',
+                'go': 'fa-solid fa-file-code go',
+                'rs': 'fa-solid fa-file-code rs',
+                'swift': 'fa-solid fa-file-code swift',
+                'kt': 'fa-solid fa-file-code kt',
+                'dart': 'fa-solid fa-file-code',
+                'sql': 'fa-solid fa-database sql',
+                
+                // Shell scripts
+                'sh': 'fa-solid fa-terminal sh',
+                'bash': 'fa-solid fa-terminal sh',
+                'bat': 'fa-solid fa-file-code bat',
+                'ps1': 'fa-solid fa-file-code ps1',
+                
+                // Documents
+                'md': 'fa-brands fa-markdown md',
+                'txt': 'fa-solid fa-file-lines txt',
+                'pdf': 'fa-solid fa-file-pdf pdf',
+                'doc': 'fa-solid fa-file-word doc',
+                'docx': 'fa-solid fa-file-word docx',
+                'xls': 'fa-solid fa-file-excel xls',
+                'xlsx': 'fa-solid fa-file-excel xlsx',
+                'ppt': 'fa-solid fa-file-powerpoint ppt',
+                'pptx': 'fa-solid fa-file-powerpoint pptx',
+                
+                // Archives
+                'zip': 'fa-solid fa-file-zipper zip',
+                'rar': 'fa-solid fa-file-zipper rar',
+                'tar': 'fa-solid fa-file-zipper tar',
+                'gz': 'fa-solid fa-file-zipper gz',
+                '7z': 'fa-solid fa-file-zipper',
+                
+                // Images
+                'jpg': 'fa-solid fa-image jpg',
+                'jpeg': 'fa-solid fa-image jpeg',
+                'png': 'fa-solid fa-image png',
+                'gif': 'fa-solid fa-image gif',
+                'svg': 'fa-solid fa-image svg',
+                'ico': 'fa-solid fa-image ico',
+                'bmp': 'fa-solid fa-image',
+                'webp': 'fa-solid fa-image',
+                
+                // Media
+                'mp3': 'fa-solid fa-music mp3',
+                'wav': 'fa-solid fa-music',
+                'flac': 'fa-solid fa-music',
+                'mp4': 'fa-solid fa-video mp4',
+                'avi': 'fa-solid fa-video avi',
+                'mov': 'fa-solid fa-video mov',
+                'wmv': 'fa-solid fa-video',
+                'mkv': 'fa-solid fa-video'
+            };
+            
+            return iconMap[ext] || 'fa-solid fa-file file';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Update path display
+        function updatePathDisplay() {
+            const currentPathElement = document.getElementById('currentPath');
+            const pathBreadcrumbElement = document.getElementById('pathBreadcrumb');
+            const backBtn = document.getElementById('backBtn');
+            
+            // Update current path display
+            currentPathElement.textContent = currentPath === '' ? '/' : currentPath;
+            
+            // Update back button state
+            backBtn.disabled = currentPath === '';
+            
+            // Update breadcrumb navigation
+            pathBreadcrumbElement.innerHTML = '';
+            
+            // Always add root
+            const rootItem = document.createElement('span');
+            rootItem.className = 'breadcrumb-item';
+            rootItem.textContent = 'Root';
+            rootItem.onclick = () => navigateToPath('');
+            pathBreadcrumbElement.appendChild(rootItem);
+            
+            // Add path segments if not root
+            if (currentPath !== '') {
+                const segments = currentPath.split('/');
+                let pathSoFar = '';
+                
+                segments.forEach((segment, index) => {
+                    // Add separator
+                    const separator = document.createElement('span');
+                    separator.className = 'breadcrumb-separator';
+                    separator.textContent = '>';
+                    pathBreadcrumbElement.appendChild(separator);
+                    
+                    // Add segment
+                    pathSoFar = pathSoFar ? `${pathSoFar}/${segment}` : segment;
+                    
+                    const segmentItem = document.createElement('span');
+                    segmentItem.className = 'breadcrumb-item';
+                    segmentItem.textContent = segment;
+                    segmentItem.onclick = () => navigateToPath(pathSoFar);
+                    pathBreadcrumbElement.appendChild(segmentItem);
+                });
+            }
+        }
+
+        // Load folder contents
+        async function loadFolderContents(path) {
+            try {
+                // Show loading state
+                const fileListElement = document.getElementById('fileList');
+                fileListElement.innerHTML = `
+                    <div class="file-list-loading">
+                        <i class="fa-solid fa-spinner"></i>
+                        <span>Loading...</span>
+                    </div>
+                `;
+                
+                const response = await fetch(`/api/list?path=${encodeURIComponent(path)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    showToast('Error', data.error, 'error');
+                    fileListElement.innerHTML = '';
+                    return;
+                }
+                
+                // Update current path
+                currentPath = path;
+                updatePathDisplay();
+                
+                // Sort items: folders first, then files, both alphabetically
+                const sortedItems = data.items.sort((a, b) => {
+                    if (a.type !== b.type) {
+                        return a.type === 'folder' ? -1 : 1;
+                    }
+                    return a.name.localeCompare(b.name);
+                });
+                
+                // Store folder contents
+                folderContents = sortedItems;
+                
+                // Render file list
+                renderFileList(sortedItems);
+                
+            } catch (error) {
+                showToast('Error', 'Failed to load files', 'error');
+                console.error(error);
+                
+                // Show error state
+                const fileListElement = document.getElementById('fileList');
+                fileListElement.innerHTML = `
+                    <div class="empty-folder">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <p>Failed to load folder contents</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render file list using DocumentFragment for better performance
+        function renderFileList(items) {
+            const fileListElement = document.getElementById('fileList');
+            
+            if (items.length === 0) {
+                fileListElement.innerHTML = `
+                    <div class="empty-folder">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>This folder is empty</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            items.forEach(item => {
+                const itemPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+                
+                // Create file item element
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.dataset.path = itemPath;
+                fileItem.dataset.type = item.type;
+                fileItem.dataset.name = item.name;
+                
+                // Add icon
+                const icon = document.createElement('i');
+                icon.className = `file-icon ${item.type === 'folder' ? 'fa-solid fa-folder folder' : getFileIcon(item.name)}`;
+                
+                // Add name
+                const name = document.createElement('span');
+                name.className = 'file-name';
+                name.textContent = item.name;
+                
+                // Add size for files
+                let sizeElement = null;
+                if (item.type === 'file' && item.size !== undefined) {
+                    sizeElement = document.createElement('span');
+                    sizeElement.className = 'file-size';
+                    sizeElement.textContent = formatFileSize(item.size);
+                }
+                
+                fileItem.appendChild(icon);
+                fileItem.appendChild(name);
+                if (sizeElement) {
+                    fileItem.appendChild(sizeElement);
+                }
+                
+                // Add event listeners
+                fileItem.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    handleFileItemClick(item, fileItem, itemPath);
+                });
+                
+                fileItem.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showContextMenu(e, item, itemPath);
+                });
+                
+                // Add touch events for mobile
+                fileItem.addEventListener('touchstart', function(e) {
+                    // Store touch start time for long press detection
+                    this.touchStartTime = Date.now();
+                });
+                
+                fileItem.addEventListener('touchend', function(e) {
+                    // Check if it was a long press (for context menu)
+                    const touchEndTime = Date.now();
+                    const touchDuration = touchEndTime - this.touchStartTime;
+                    
+                    if (touchDuration > 500) { // Long press threshold
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showContextMenu(e, item, itemPath);
+                        return;
+                    }
+                    
+                    // Normal tap
+                    handleFileItemClick(item, fileItem, itemPath);
+                });
+                
+                fragment.appendChild(fileItem);
+            });
+            
+            // Clear and append the fragment at once
+            fileListElement.innerHTML = '';
+            fileListElement.appendChild(fragment);
+        }
+
+        // Handle file item click
+        function handleFileItemClick(item, element, path) {
+            // Update selection
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedFile = { item, path };
+            
+            // Update header buttons to enable delete/rename for folders
+            updateHeader();
+            
+            // Don't auto-close sidebar on mobile - let user control it
+            // if (window.innerWidth <= 768 && sidebarOpen) {
+            //     sidebarOpen = false;
+            //     document.getElementById('sidebar').classList.remove('open');
+            //     document.getElementById('mobileOverlay').classList.remove('show');
+            // }
+            
+            if (item.type === 'folder') {
+                // Navigate into folder
+                // Store the current selected file before navigating
+                const currentSelected = selectedFile;
+                navigateToPath(path);
+                // Restore the selected file after navigation
+                selectedFile = currentSelected;
+                updateHeader();
+            } else {
+                // Open file in editor (images will be handled in openFileInEditor)
+                openFileInEditor(item, path);
+            }
+        }
+
+        // Navigate to a specific path
+        function navigateToPath(path) {
+            // Don't reset selectedFile when navigating - this was causing the issue
+            // selectedFile = null;
+            // currentFile = null;
+            // contextFile = null;
+            loadFolderContents(path);
+        }
+
+        // Navigate to parent folder
+        function navigateToParent() {
+            if (currentPath === '') return;
+            
+            const parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            navigateToPath(parentPath);
+        }
+
+        // Refresh current folder
+        function refreshCurrentFolder() {
+            // Don't reset selectedFile when refreshing - this was causing the issue
+            // selectedFile = null;
+            // currentFile = null;
+            // contextFile = null;
+            loadFolderContents(currentPath);
+            // Removed unnecessary toast notification
+        }
+
+        // Open file in editor - always reload from backend
+        async function openFileInEditor(item, path) {
+            // Always reload content from backend to fix file reopen bug
+            try {
+                // Check if it's an image file
+                if (isImageFile(item.name)) {
+                    // For images, create a special tab with message
+                    const existingTab = openTabs.find(tab => tab.path === path);
+                    
+                    if (existingTab) {
+                        // Switch to existing image tab
+                        switchToTab(existingTab);
+                        return;
+                    }
+                    
+                    // Create new image tab
+                    const tab = {
+                        name: item.name,
+                        path: path,
+                        content: null, // No content for images
+                        saved: true,
+                        isImage: true // Mark as image tab
+                    };
+                    
+                    openTabs.push(tab);
+                    renderTabs();
+                    switchToTab(tab);
+                    
+                    updateStatus(`Opened ${item.name}`);
+                    return;
+                }
+                
+                // For non-image files, proceed with normal file opening
+                const response = await fetch(`/api/read?path=${encodeURIComponent(path)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    showToast('Error', data.error, 'error');
+                    return;
+                }
+                
+                // Check if tab already exists
+                const existingTab = openTabs.find(tab => tab.path === path);
+                
+                if (existingTab) {
+                    // Update tab content with fresh data from backend
+                    existingTab.content = data.content || '';
+                    existingTab.saved = true;
+                    
+                    // Update editor content if it exists
+                    if (editors[path]) {
+                        // FIX: Ensure editor is properly updated with new content
+                        const editor = editors[path];
+                        const currentValue = editor.getValue();
+                        const newValue = data.content || '';
+                        
+                        // Only update if content is different to avoid cursor issues
+                        if (currentValue !== newValue) {
+                            editor.setValue(newValue);
+                        }
+                        
+                        // Refresh the editor display
+                        setTimeout(() => {
+                            editor.refresh();
+                        }, 10);
+                    }
+                    
+                    switchToTab(existingTab);
+                    return;
+                }
+                
+                // Create new tab
+                const tab = {
+                    name: item.name,
+                    path: path,
+                    content: data.content || '',
+                    saved: true,
+                    isImage: false
+                };
+                
+                openTabs.push(tab);
+                renderTabs();
+                switchToTab(tab);
+                
+                updateStatus(`Opened ${item.name}`);
+                
+            } catch (error) {
+                showToast('Error', 'Failed to open file', 'error');
+                console.error(error);
+            }
+        }
+
+        // Render tabs
+        function renderTabs() {
+            const tabsContainer = document.getElementById('editorTabs');
+            tabsContainer.innerHTML = '';
+            
+            openTabs.forEach((tab, index) => {
+                const tabElement = document.createElement('div');
+                tabElement.className = 'editor-tab';
+                tabElement.dataset.path = tab.path;
+                
+                if (tab === activeTab) {
+                    tabElement.classList.add('active');
+                }
+                
+                const icon = document.createElement('i');
+                icon.className = tab.isImage ? 'fa-solid fa-image' : 'fa-solid fa-file-code';
+                
+                const name = document.createElement('span');
+                name.textContent = tab.name;
+                
+                const close = document.createElement('i');
+                close.className = 'fa-solid fa-xmark editor-tab-close';
+                close.dataset.index = index;
+                
+                tabElement.appendChild(icon);
+                tabElement.appendChild(name);
+                tabElement.appendChild(close);
+                
+                tabElement.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('editor-tab-close')) {
+                        switchToTab(tab);
+                    }
+                });
+                
+                close.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeTab(index);
+                });
+                
+                tabsContainer.appendChild(tabElement);
+            });
+        }
+
+        // Switch to tab
+        function switchToTab(tab) {
+            // Hide all editors and image messages
+            document.querySelectorAll('.editor-wrapper').forEach(wrapper => {
+                wrapper.classList.remove('active');
+            });
+            document.querySelectorAll('.image-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+            
+            // Hide empty state
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+            
+            activeTab = tab;
+            currentFile = tab;
+            
+            // Update tab UI
+            document.querySelectorAll('.editor-tab').forEach(el => {
+                if (el.dataset.path === tab.path) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // Handle image tabs
+            if (tab.isImage) {
+                // Show image message
+                const existingMessage = document.querySelector(`.image-message[data-path="${tab.path}"]`);
+                if (existingMessage) {
+                    existingMessage.style.display = 'flex';
+                } else {
+                    const imageMessage = document.createElement('div');
+                    imageMessage.className = 'image-message';
+                    imageMessage.dataset.path = tab.path;
+                    imageMessage.innerHTML = `
+                        <i class="fa-solid fa-image"></i>
+                        <h3>Image File</h3>
+                        <p>This image file cannot be displayed in the text editor.</p>
+                        <p><strong>File:</strong> ${tab.name}</p>
+                    `;
+                    document.getElementById('editorContent').appendChild(imageMessage);
+                }
+            } else {
+                // Create or show editor for non-image files
+                if (!editors[tab.path]) {
+                    createEditor(tab);
+                } else {
+                    const wrapper = document.querySelector(`.editor-wrapper[data-path="${tab.path}"]`);
+                    if (wrapper) {
+                        wrapper.classList.add('active');
+                        // FIX: Ensure editor content is synchronized
+                        const editor = editors[tab.path];
+                        const editorContent = editor.getValue();
+                        
+                        // If editor content differs from tab content, sync it
+                        if (editorContent !== tab.content) {
+                            editor.setValue(tab.content);
+                        }
+                        
+                        // Refresh the editor to ensure proper display
+                        setTimeout(() => {
+                            editor.refresh();
+                        }, 10);
+                    }
+                }
+            }
+            
+            updateHeader();
+            // Only update file path in desktop view, not mobile
+            if (window.innerWidth > 768) {
+                updateFilePath(tab.path);
+            }
+        }
+
+        // Create editor
+        function createEditor(tab) {
+            const editorContent = document.getElementById('editorContent');
+            
+            // Create wrapper for this editor
+            const wrapper = document.createElement('div');
+            wrapper.className = 'editor-wrapper active';
+            wrapper.dataset.path = tab.path;
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = tab.content;
+            wrapper.appendChild(textarea);
+            
+            editorContent.appendChild(wrapper);
+            
+            // Determine mode based on file extension
+            let mode = 'javascript';
+            const ext = tab.name.split('.').pop().toLowerCase();
+            if (ext === 'html') mode = 'htmlmixed';
+            else if (ext === 'css') mode = 'css';
+            else if (ext === 'py') mode = 'python';
+            else if (ext === 'json') mode = 'javascript';
+            else if (ext === 'md') mode = 'markdown';
+            
+            const editor = CodeMirror.fromTextArea(textarea, {
+                mode: mode,
+                theme: 'monokai',
+                lineNumbers: true,
+                lineWrapping: true,
+                indentUnit: 2,
+                tabSize: 2,
+                indentWithTabs: false
+            });
+            
+            editors[tab.path] = editor;
+            
+            editor.on('change', function() {
+                tab.saved = false;
+                tab.content = editor.getValue();
+                updateHeader();
+                updateUndoRedoButtons();
+            });
+            
+            updateUndoRedoButtons();
+        }
+
+        // Close tab
+        function closeTab(index) {
+            if (index < 0 || index >= openTabs.length) return;
+            
+            const tab = openTabs[index];
+            
+            if (!tab.saved && !tab.isImage) {
+                // Replace default confirm with custom modal
+                showConfirmModal(`File "${tab.name}" has unsaved changes. Are you sure you want to close it?`, function() {
+                    closeTabInternal(index);
+                });
+                return;
+            }
+            
+            closeTabInternal(index);
+        }
+
+        // Internal close tab function
+        function closeTabInternal(index) {
+            const tab = openTabs[index];
+            
+            // Remove editor
+            if (editors[tab.path]) {
+                try {
+                    editors[tab.path].toTextArea();
+                } catch (e) {
+                    console.error('Error cleaning up editor:', e);
+                }
+                delete editors[tab.path];
+            }
+            
+            // Remove image message if it exists
+            const imageMessage = document.querySelector(`.image-message[data-path="${tab.path}"]`);
+            if (imageMessage) {
+                imageMessage.remove();
+            }
+            
+            // Remove wrapper
+            const wrapper = document.querySelector(`.editor-wrapper[data-path="${tab.path}"]`);
+            if (wrapper) {
+                wrapper.remove();
+            }
+            
+            // Remove tab
+            openTabs.splice(index, 1);
+            
+            if (tab === activeTab) {
+                if (openTabs.length > 0) {
+                    const newIndex = Math.min(index, openTabs.length - 1);
+                    switchToTab(openTabs[newIndex]);
+                } else {
+                    activeTab = null;
+                    currentFile = null;
+                    
+                    // Show empty state
+                    const editorContent = document.getElementById('editorContent');
+                    editorContent.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fa-solid fa-file-code"></i>
+                            <p>No file opened</p>
+                        </div>
+                    `;
+                    
+                    updateHeader();
+                    if (window.innerWidth > 768) {
+                        updateFilePath('No file opened');
+                    }
+                }
+            }
+            
+            renderTabs();
+        }
+
+        // Update header buttons
+        function updateHeader() {
+            const hasFile = currentFile !== null;
+            const hasUnsavedChanges = currentFile && !currentFile.saved && !currentFile.isImage;
+            
+            document.getElementById('saveBtn').disabled = !hasUnsavedChanges;
+            document.getElementById('downloadBtn').disabled = !selectedFile;
+            document.getElementById('renameBtn').disabled = !selectedFile;
+            document.getElementById('deleteBtn').disabled = !selectedFile;
+            
+            updateUndoRedoButtons();
+        }
+
+        // Update undo/redo buttons
+        function updateUndoRedoButtons() {
+            if (currentFile && !currentFile.isImage && editors[currentFile.path]) {
+                const editor = editors[currentFile.path];
+                document.getElementById('undoBtn').disabled = !editor.historySize().undo;
+                document.getElementById('redoBtn').disabled = !editor.historySize().redo;
+            } else {
+                document.getElementById('undoBtn').disabled = true;
+                document.getElementById('redoBtn').disabled = true;
+            }
+        }
+
+        // Update file path display
+        function updateFilePath(path) {
+            const filePathElement = document.getElementById('filePath');
+            if (filePathElement) {
+                const icon = path === 'No file opened' ? 'fa-file' : 'fa-file-code';
+                filePathElement.innerHTML = `<i class="fa-solid ${icon}"></i><span>${path}</span>`;
+            }
+        }
+
+        // File operations
+        async function saveFile() {
+            if (!currentFile || currentFile.isImage) return;
+            
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        path: currentFile.path,
+                        content: currentFile.content
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showToast('Error', data.error, 'error');
+                    return;
+                }
+                
+                currentFile.saved = true;
+                updateHeader();
+                showToast('Success', `File "${currentFile.name}" saved`, 'success');
+                updateStatus(`Saved ${currentFile.name}`);
+                
+            } catch (error) {
+                showToast('Error', 'Failed to save file', 'error');
+                console.error(error);
+            }
+        }
+
+        function undo() {
+            if (currentFile && !currentFile.isImage && editors[currentFile.path]) {
+                editors[currentFile.path].undo();
+            }
+        }
+
+        function redo() {
+            if (currentFile && !currentFile.isImage && editors[currentFile.path]) {
+                editors[currentFile.path].redo();
+            }
+        }
+
+        // Download file or folder
+        async function downloadSelectedItem() {
+            const file = selectedFile;
+            if (!file) return;
+            
+            try {
+                if (file.item.type === 'folder') {
+                    // Download folder as zip
+                    showToast('Info', 'Preparing folder for download...', 'info');
+                    
+                    const response = await fetch(`/api/downloadzip?path=${encodeURIComponent(file.path)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+                    
+                    // Check if response is JSON (error) or blob (file)
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to download folder');
+                    }
+                    
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${file.item.name}.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showToast('Success', `Downloaded folder "${file.item.name}"`, 'success');
+                } else {
+                    // Download file
+                    let content;
+                    if (file.path === currentFile?.path && !currentFile.isImage) {
+                        content = currentFile.content;
+                    } else {
+                        const response = await fetch(`/api/read?path=${encodeURIComponent(file.path)}`);
+                        const data = await response.json();
+                        if (data.error) {
+                            showToast('Error', data.error, 'error');
+                            return;
+                        }
+                        content = data.content || '';
+                    }
+                    
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.item.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showToast('Success', `Downloaded "${file.item.name}"`, 'success');
+                }
+                
+            } catch (error) {
+                showToast('Error', `Failed to download: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        // Download from context menu
+        async function downloadContextItem() {
+            const file = contextFile;
+            if (!file) return;
+            
+            hideContextMenu();
+            
+            try {
+                if (file.item.type === 'folder') {
+                    // Download folder as zip
+                    showToast('Info', 'Preparing folder for download...', 'info');
+                    
+                    const response = await fetch(`/api/downloadzip?path=${encodeURIComponent(file.path)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+                    
+                    // Check if response is JSON (error) or blob (file)
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to download folder');
+                    }
+                    
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${file.item.name}.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showToast('Success', `Downloaded folder "${file.item.name}"`, 'success');
+                } else {
+                    // Download file
+                    let content;
+                    if (file.path === currentFile?.path && !currentFile.isImage) {
+                        content = currentFile.content;
+                    } else {
+                        const response = await fetch(`/api/read?path=${encodeURIComponent(file.path)}`);
+                        const data = await response.json();
+                        if (data.error) {
+                            showToast('Error', data.error, 'error');
+                            return;
+                        }
+                        content = data.content || '';
+                    }
+                    
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.item.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showToast('Success', `Downloaded "${file.item.name}"`, 'success');
+                }
+                
+            } catch (error) {
+                showToast('Error', `Failed to download: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        async function deleteItem() {
+            const file = selectedFile || contextFile;
+            if (!file) return;
+            
+            // Replace default confirm with custom modal
+            showConfirmModal(`Are you sure you want to delete "${file.item.name}"?`, async function() {
+                try {
+                    const response = await fetch('/api/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            path: file.path
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showToast('Error', data.error, 'error');
+                        return;
+                    }
+                    
+                    // Close tab if file is open
+                    const tabIndex = openTabs.findIndex(tab => tab.path === file.path);
+                    if (tabIndex !== -1) {
+                        closeTabInternal(tabIndex);
+                    }
+                    
+                    // Refresh current folder
+                    refreshCurrentFolder();
+                    
+                    showToast('Success', `Deleted "${file.item.name}"`, 'success');
+                    selectedFile = null;
+                    contextFile = null;
+                    updateHeader();
+                    
+                } catch (error) {
+                    showToast('Error', 'Failed to delete', 'error');
+                    console.error(error);
+                }
+            });
+        }
+
+        // Rename from header button
+        async function promptRename() {
+            const file = selectedFile;
+            if (!file) return;
+            
+            showModal('Rename', `Enter new name for "${file.item.name}":`, file.item.name, async function(newName) {
+                if (!newName || newName === file.item.name) return;
+                
+                try {
+                    const parentPath = file.path.substring(0, file.path.lastIndexOf('/'));
+                    const newPath = parentPath ? `${parentPath}/${newName}` : newName;
+                    
+                    // FIX: Save file content before renaming if it has unsaved changes
+                    if (currentFile && currentFile.path === file.path && !currentFile.saved && !currentFile.isImage) {
+                        await saveFile();
+                    }
+                    
+                    const response = await fetch('/api/rename', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            old_path: file.path,
+                            new_path: newPath
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showToast('Error', data.error, 'error');
+                        return;
+                    }
+                    
+                    // FIX: Update editor instances, open tabs, selectedFile, currentFile
+                    const tabIndex = openTabs.findIndex(tab => tab.path === file.path);
+                    if (tabIndex !== -1) {
+                        // Update tab path and name
+                        openTabs[tabIndex].name = newName;
+                        openTabs[tabIndex].path = newPath;
+                        
+                        // Update editor instance
+                        if (editors[file.path] && !openTabs[tabIndex].isImage) {
+                            // Save current content before moving
+                            const currentContent = editors[file.path].getValue();
+                            editors[newPath] = editors[file.path];
+                            delete editors[file.path];
+                            
+                            // Update the editor wrapper's data-path attribute
+                            const wrapper = document.querySelector(`.editor-wrapper[data-path="${file.path}"]`);
+                            if (wrapper) {
+                                wrapper.dataset.path = newPath;
+                            }
+                        }
+                        
+                        // Update currentFile if it's the renamed file
+                        if (currentFile && currentFile.path === file.path) {
+                            currentFile.name = newName;
+                            currentFile.path = newPath;
+                        }
+                        
+                        renderTabs();
+                    }
+                    
+                    // Update selectedFile if it's the renamed file
+                    if (selectedFile && selectedFile.path === file.path) {
+                        selectedFile.path = newPath;
+                        selectedFile.item.name = newName;
+                    }
+                    
+                    // Refresh current folder
+                    refreshCurrentFolder();
+                    
+                    showToast('Success', `Renamed to "${newName}"`, 'success');
+                    
+                } catch (error) {
+                    showToast('Error', 'Failed to rename', 'error');
+                    console.error(error);
+                }
+            });
+        }
+
+        // Rename from context menu
+        async function promptRenameFromContext() {
+            const file = contextFile;
+            if (!file) return;
+            
+            hideContextMenu();
+            
+            showModal('Rename', `Enter new name for "${file.item.name}":`, file.item.name, async function(newName) {
+                if (!newName || newName === file.item.name) return;
+                
+                try {
+                    const parentPath = file.path.substring(0, file.path.lastIndexOf('/'));
+                    const newPath = parentPath ? `${parentPath}/${newName}` : newName;
+                    
+                    // FIX: Save file content before renaming if it has unsaved changes
+                    if (currentFile && currentFile.path === file.path && !currentFile.saved && !currentFile.isImage) {
+                        await saveFile();
+                    }
+                    
+                    const response = await fetch('/api/rename', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            old_path: file.path,
+                            new_path: newPath
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showToast('Error', data.error, 'error');
+                        return;
+                    }
+                    
+                    // FIX: Update editor instances, open tabs, selectedFile, currentFile
+                    const tabIndex = openTabs.findIndex(tab => tab.path === file.path);
+                    if (tabIndex !== -1) {
+                        // Update tab path and name
+                        openTabs[tabIndex].name = newName;
+                        openTabs[tabIndex].path = newPath;
+                        
+                        // Update editor instance
+                        if (editors[file.path] && !openTabs[tabIndex].isImage) {
+                            // Save current content before moving
+                            const currentContent = editors[file.path].getValue();
+                            editors[newPath] = editors[file.path];
+                            delete editors[file.path];
+                            
+                            // Update the editor wrapper's data-path attribute
+                            const wrapper = document.querySelector(`.editor-wrapper[data-path="${file.path}"]`);
+                            if (wrapper) {
+                                wrapper.dataset.path = newPath;
+                            }
+                        }
+                        
+                        // Update currentFile if it's the renamed file
+                        if (currentFile && currentFile.path === file.path) {
+                            currentFile.name = newName;
+                            currentFile.path = newPath;
+                        }
+                        
+                        renderTabs();
+                    }
+                    
+                    // Update selectedFile if it's the renamed file
+                    if (selectedFile && selectedFile.path === file.path) {
+                        selectedFile.path = newPath;
+                        selectedFile.item.name = newName;
+                    }
+                    
+                    // Refresh current folder
+                    refreshCurrentFolder();
+                    
+                    showToast('Success', `Renamed to "${newName}"`, 'success');
+                    contextFile = null;
+                    
+                } catch (error) {
+                    showToast('Error', 'Failed to rename', 'error');
+                    console.error(error);
+                }
+            });
+        }
+
+        // Create file/folder functions
+        function createFile() {
+            showModal('New File', 'Enter file name:', '', async function(name) {
+                if (!name) return;
+                
+                try {
+                    const filePath = currentPath ? `${currentPath}/${name}` : name;
+                    
+                    const response = await fetch('/api/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            path: filePath,
+                            is_folder: false
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showToast('Error', data.error, 'error');
+                        return;
+                    }
+                    
+                    // Refresh current folder
+                    refreshCurrentFolder();
+                    showToast('Success', `Created file "${name}"`, 'success');
+                    
+                } catch (error) {
+                    showToast('Error', 'Failed to create file', 'error');
+                    console.error(error);
+                }
+            });
+        }
+
+        function createFolder() {
+            showModal('New Folder', 'Enter folder name:', '', async function(name) {
+                if (!name) return;
+                
+                try {
+                    const folderPath = currentPath ? `${currentPath}/${name}` : name;
+                    
+                    const response = await fetch('/api/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            path: folderPath,
+                            is_folder: true
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showToast('Error', data.error, 'error');
+                        return;
+                    }
+                    
+                    // Refresh current folder
+                    refreshCurrentFolder();
+                    showToast('Success', `Created folder "${name}"`, 'success');
+                    
+                } catch (error) {
+                    showToast('Error', 'Failed to create folder', 'error');
+                    console.error(error);
+                }
+            });
+        }
+
+        // Context menu file/folder creation
+        function createNewFile() {
+            hideContextMenu();
+            createFile();
+        }
+
+        function createNewFolder() {
+            hideContextMenu();
+            createFolder();
+        }
+
+        // Context menu
+        function showContextMenu(e, item, path) {
+            // Store the context file separately
+            contextFile = { item, path };
+            
+            // Update context menu items based on file type
+            if (item.type === 'file' && isImageFile(item.name)) {
+                // Show "View Image" instead of "Open"
+                document.getElementById('contextViewImage').style.display = 'flex';
+                // Hide the regular "Open" menu item
+                const openMenuItem = Array.from(document.querySelectorAll('.context-menu-item')).find(item => 
+                    item.textContent.includes('Open')
+                );
+                if (openMenuItem) {
+                    openMenuItem.style.display = 'none';
+                }
+            } else {
+                // Hide "View Image", show "Open"
+                document.getElementById('contextViewImage').style.display = 'none';
+                // Show the regular "Open" menu item
+                const openMenuItem = Array.from(document.querySelectorAll('.context-menu-item')).find(item => 
+                    item.textContent.includes('Open')
+                );
+                if (openMenuItem) {
+                    openMenuItem.style.display = 'flex';
+                }
+            }
+            
+            const menu = document.getElementById('contextMenu');
+            menu.style.display = 'block';
+            
+            // Position context menu for mobile
+            if (window.innerWidth <= 768) {
+                // On mobile, position the menu at the bottom of the screen
+                menu.style.left = '10px';
+                menu.style.right = '10px';
+                menu.style.bottom = '10px';
+                menu.style.top = 'auto';
+                menu.style.maxHeight = '50vh';
+                menu.style.overflowY = 'auto';
+            } else {
+                // On desktop, position at the cursor
+                menu.style.left = `${e.pageX}px`;
+                menu.style.top = `${e.pageY}px`;
+                menu.style.right = 'auto';
+                menu.style.bottom = 'auto';
+                menu.style.maxHeight = 'none';
+                menu.style.overflowY = 'visible';
+            }
+            
+            document.addEventListener('click', hideContextMenu);
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+            document.removeEventListener('click', hideContextMenu);
+        }
+
+        function openFile() {
+            if (contextFile && contextFile.item.type === 'file') {
+                openFileInEditor(contextFile.item, contextFile.path);
+            }
+            hideContextMenu();
+        }
+
+        // Modal
+        function showModal(title, message, defaultValue, callback) {
+            const modal = document.getElementById('inputModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalInput').value = defaultValue || '';
+            
+            modalCallback = callback;
+            modal.style.display = 'flex';
+            
+            const input = document.getElementById('modalInput');
+            input.focus();
+            input.select();
+        }
+
+        // Confirm modal
+        function showConfirmModal(message, callback) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmModalMessage').textContent = message;
+            
+            confirmCallback = callback;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            modalCallback = null;
+            confirmCallback = null;
+        }
+
+        // Toast notifications
+        function showToast(title, message, type = 'info') {
+            // Only show toast for important notifications (file saved, file deleted, error)
+            if (type === 'info' && !message.includes('download')) {
+                return; // Skip info toasts except for downloads
+            }
+            
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let iconClass = 'fa-info-circle';
+            if (type === 'success') iconClass = 'fa-check-circle';
+            else if (type === 'error') iconClass = 'fa-exclamation-circle';
+            
+            toast.innerHTML = `
+                <i class="toast-icon fa-solid ${iconClass}"></i>
+                <div class="toast-content">${message}</div>
+                <button class="toast-close" onclick="removeToast(this)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.classList.add('hiding');
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        }
+
+        function removeToast(button) {
+            const toast = button.closest('.toast');
+            toast.classList.add('hiding');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }
+
+        // Update status
+        function updateStatus(text) {
+            document.getElementById('statusText').textContent = text;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+                const input = document.getElementById('modalInput');
+                if (modalCallback) {
+                    modalCallback(input.value);
+                }
+                closeModal('inputModal');
+            });
+            
+            document.getElementById('confirmModalBtn').addEventListener('click', function() {
+                if (confirmCallback) {
+                    confirmCallback();
+                }
+                closeModal('confirmModal');
+            });
+            
+            document.getElementById('modalInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('modalConfirmBtn').click();
+                }
+            });
+            
+            // Add context menu for empty space in file list
+            document.getElementById('fileList').addEventListener('contextmenu', function(e) {
+                // Check if right-clicking on empty space
+                if (e.target === e.currentTarget || e.target.classList.contains('file-list')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Show context menu for current folder
+                    contextFile = { 
+                        item: { 
+                            type: 'folder', 
+                            name: currentPath === '' ? 'Root' : currentPath.split('/').pop() 
+                        }, 
+                        path: currentPath 
+                    };
+                    
+                    const menu = document.getElementById('contextMenu');
+                    menu.style.display = 'block';
+                    
+                    // Position context menu for mobile
+                    if (window.innerWidth <= 768) {
+                        // On mobile, position the menu at the bottom of the screen
+                        menu.style.left = '10px';
+                        menu.style.right = '10px';
+                        menu.style.bottom = '10px';
+                        menu.style.top = 'auto';
+                        menu.style.maxHeight = '50vh';
+                        menu.style.overflowY = 'auto';
+                    } else {
+                        // On desktop, position at the cursor
+                        menu.style.left = `${e.pageX}px`;
+                        menu.style.top = `${e.pageY}px`;
+                        menu.style.right = 'auto';
+                        menu.style.bottom = 'auto';
+                        menu.style.maxHeight = 'none';
+                        menu.style.overflowY = 'visible';
+                    }
+                    
+                    // Show download option for folder
+                    document.getElementById('contextDownloadItem').style.display = 'flex';
+                    
+                    document.addEventListener('click', hideContextMenu);
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    if (currentFile && !currentFile.saved && !currentFile.isImage) {
+                        saveFile();
+                    }
+                }
+                
+                if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+                    e.preventDefault();
+                    undo();
+                }
+                
+                if ((e.ctrlKey && e.shiftKey && e.key === 'Z') || (e.ctrlKey && e.key === 'y')) {
+                    e.preventDefault();
+                    redo();
+                }
+                
+                if (e.key === 'Escape') {
+                    const modals = document.querySelectorAll('.modal-overlay');
+                    modals.forEach(modal => {
+                        if (modal.style.display === 'flex') {
+                            modal.style.display = 'none';
+                        }
+                    });
+                    
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768 && sidebarOpen) {
+                        sidebarOpen = false;
+                        document.getElementById('sidebar').classList.remove('open');
+                        document.getElementById('mobileOverlay').classList.remove('show');
+                    }
+                }
+                
+                // Back navigation with Alt+Left Arrow
+                if (e.altKey && e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    navigateToParent();
+                }
+            });
+        }
+
+        // Add this function to detect if file is an image
+        function isImageFile(fileName) {
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'];
+            const ext = fileName.split('.').pop().toLowerCase();
+            return imageExtensions.includes(ext);
+        }
+
+        // Add this function to view image from context menu
+        function viewContextImage() {
+            if (contextFile && contextFile.item.type === 'file' && isImageFile(contextFile.item.name)) {
+                openFileInEditor(contextFile.item, contextFile.path);
+            }
+            hideContextMenu();
+        }
+    </script>
+</body>
+</html>
